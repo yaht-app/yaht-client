@@ -15,7 +15,7 @@ const mutations = {};
 const actions = {};
 const getters = {};
 
-export const auth: Module<AuthState, RootState> = {
+export const authState: Module<AuthState, RootState> = {
   namespaced,
   state,
   mutations,

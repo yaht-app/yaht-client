@@ -1,6 +1,7 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { AuthService } from '@/core/auth/AuthService';
 import { HttpService } from '@/infrastructure/http/HttpService';
+import store from '@/store';
 import { inject, injectable } from 'inversify';
 
 @injectable()
@@ -14,6 +15,7 @@ export class JwtAuthService implements AuthService {
     console.log('login', username, password);
 
     console.log(Notification.permission);
+    console.log(store.state.authState.isLoggedIn);
     const myNotification = new Notification('Title', {
       body: 'Notification from AuthUseCase',
     });
