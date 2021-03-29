@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
+    {{ isLoggedIn }}
     <a @click="loginClicked">LOGIN</a>
     <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
   </div>
@@ -11,6 +12,8 @@ import SERVICE from '@/constants/ServiceIdentifiers';
 import { AuthService } from '@/services/auth/AuthService';
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue';
+import { namespace } from 'vuex-class';
+const auth = namespace('auth');
 
 @Component({
   components: {
@@ -19,6 +22,8 @@ import HelloWorld from '@/components/HelloWorld.vue';
 })
 export default class Home extends Vue {
   private authService: AuthService;
+
+  @auth.State isLoggedIn!: boolean;
 
   constructor() {
     super();
