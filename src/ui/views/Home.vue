@@ -9,9 +9,9 @@
 
 <script lang="ts">
 import SERVICE from '@/constants/ServiceIdentifiers';
-import { AuthService } from '@/services/auth/AuthService';
+import { AuthService } from '@/core/auth/AuthService';
+import HelloWorld from '@/ui/components/HelloWorld.vue';
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue';
 import { namespace } from 'vuex-class';
 const auth = namespace('auth');
 

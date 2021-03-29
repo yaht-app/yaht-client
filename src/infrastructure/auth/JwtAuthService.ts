@@ -1,9 +1,10 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
-import { HttpService } from '@/services/http/HttpService';
+import { AuthService } from '@/core/auth/AuthService';
+import { HttpService } from '@/infrastructure/http/HttpService';
 import { inject, injectable } from 'inversify';
 
 @injectable()
-export class AuthService {
+export class JwtAuthService implements AuthService {
   constructor(
     @inject(SERVICE.HTTP)
     private readonly httpService: HttpService
