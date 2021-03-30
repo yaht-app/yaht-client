@@ -13,7 +13,7 @@ import { AuthService } from '@/core/auth/AuthService';
 import HelloWorld from '@/ui/components/HelloWorld.vue';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-const auth = namespace('authState');
+const auth = namespace('authStore');
 
 @Component({
   components: {

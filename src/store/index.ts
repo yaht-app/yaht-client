@@ -1,17 +1,17 @@
 import Vue from 'vue';
 import Vuex, { StoreOptions } from 'vuex';
 
-import { authState, AuthState } from '@/store/AuthStore';
+import { authStore, AuthState } from '@/store/AuthStore';
 
 Vue.use(Vuex);
 
 export interface RootState {
-  authState: AuthState;
+  authStore: AuthState;
 }
 
 const store: StoreOptions<RootState> = {
   modules: {
-    authState,
+    authStore,
   },
 };
 

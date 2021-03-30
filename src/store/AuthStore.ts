@@ -6,17 +6,24 @@ export interface AuthState {
   user?: unknown;
 }
 
-const namespaced = true;
 const state: AuthState = {
   isLoggedIn: false,
   user: undefined,
 };
-const mutations = {};
+
+const mutations = {
+  setUser(state: AuthState, user: unknown): void {
+    state.user = user;
+  },
+  setIsLoggedIn(state: AuthState, isLoggedIn: boolean): void {
+    state.isLoggedIn = isLoggedIn;
+  },
+};
 const actions = {};
 const getters = {};
 
-export const authState: Module<AuthState, RootState> = {
-  namespaced,
+export const authStore: Module<AuthState, RootState> = {
+  namespaced: true,
   state,
   mutations,
   actions,
