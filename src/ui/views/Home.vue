@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts">
-import SERVICE from '@/constants/ServiceIdentifiers';
-import { AuthService } from '@/core/auth/AuthService';
+import USE_CASE from '@/constants/UseCaseIdentifiers';
+import { AuthUseCases } from '@/core/auth/AuthUseCases';
 import HelloWorld from '@/ui/components/HelloWorld.vue';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -21,17 +21,17 @@ const auth = namespace('authStore');
   },
 })
 export default class Home extends Vue {
-  private authService: AuthService;
+  private authUseCase: AuthUseCases;
 
   @auth.State isLoggedIn!: boolean;
 
   constructor() {
     super();
-    this.authService = this.$container.get(SERVICE.AUTH);
+    this.authUseCase = this.$container.get(USE_CASE.AUTH);
   }
 
   loginClicked(): void {
-    this.authService.login('userName', 'p@55w0rD');
+    this.authUseCase.login('userName', 'p@55w0rD');
   }
 }
 </script>

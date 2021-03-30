@@ -3,6 +3,7 @@ import { AuthService } from '@/core/auth/AuthService';
 import { HttpService } from '@/infrastructure/http/HttpService';
 import store from '@/store';
 import { inject, injectable } from 'inversify';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 @injectable()
 export class JwtAuthService implements AuthService {
@@ -25,15 +26,15 @@ export class JwtAuthService implements AuthService {
       });
       const user = jwtDecode(response.data.token);
       */
-
-      const user = { username: 'User Name' };
-      console.debug(user);
+      const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const decoded = jwtDecode<JwtPayload>(token);
+      console.log(decoded);
+      return decoded;
     } catch (e) {
       console.error(e);
       throw e;
     }
-
-    return Promise.resolve(undefined);
   }
 
   logout(): Promise<unknown> {
