@@ -1,8 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { injectable } from 'inversify';
 
-// ToDo: move to VUE_APP envs
-const API_URL = 'http://localhost:1234/api/v1/';
+const API_URL = process.env.VUE_APP_API_URL;
 
 @injectable()
 export class HttpService {
