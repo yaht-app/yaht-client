@@ -15,13 +15,7 @@ export class JwtAuthService implements AuthService {
     console.log('login', username, password);
 
     console.log(Notification.permission);
-    console.log(store.state.authState.isLoggedIn);
-    const myNotification = new Notification('Title', {
-      body: 'Notification from AuthUseCase',
-    });
-    myNotification.onclick = () => {
-      console.log('Notification clicked');
-    };
+    console.log(store.state.authStore.isLoggedIn);
 
     try {
       /*
