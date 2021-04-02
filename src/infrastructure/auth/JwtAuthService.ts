@@ -1,5 +1,6 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { AuthService } from '@/core/auth/AuthService';
+import { GenericResponse } from '@/GenericResponse';
 import { HttpService } from '@/infrastructure/http/HttpService';
 import store from '@/store';
 import { inject, injectable } from 'inversify';
@@ -38,7 +39,7 @@ export class JwtAuthService implements AuthService {
   }
 
   logout(): Promise<unknown> {
-    console.log('logout');
-    return Promise.resolve(undefined);
+    console.debug('Logging out...');
+    return this.httpService.post<GenericResponse>('/auth/logout');
   }
 }

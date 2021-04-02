@@ -3,6 +3,7 @@
     <img alt="Vue logo" src="../assets/logo.png" />
     {{ isLoggedIn }}
     <a @click="loginClicked">LOGIN</a>
+    <a @click="logoutClicked">LOGOUT</a>
     <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
   </div>
 </template>
@@ -32,6 +33,10 @@ export default class Home extends Vue {
 
   loginClicked(): void {
     this.authUseCase.login('userName', 'p@55w0rD');
+  }
+
+  logoutClicked(): void {
+    this.authUseCase.logout();
   }
 }
 </script>

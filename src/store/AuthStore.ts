@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { RootState } from '@/store/index';
 import { Module } from 'vuex';
 
@@ -19,7 +20,12 @@ const mutations = {
     state.isLoggedIn = isLoggedIn;
   },
 };
-const actions = {};
+const actions = {
+  logout(context: any): void {
+    context.commit('setUser', undefined);
+    context.commit('setIsLoggedIn', false);
+  },
+};
 const getters = {};
 
 export const authStore: Module<AuthState, RootState> = {

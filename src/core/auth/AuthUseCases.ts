@@ -11,10 +11,12 @@ export class AuthUseCases {
   ) {}
 
   async login(username: string, password: string): Promise<void> {
-    console.log('loginUser useCase');
+    console.log('login useCase');
     const user = await this.authService.login(username, password);
     store.commit('authStore/setUser', user);
     store.commit('authStore/setIsLoggedIn', true);
+
+    // TODO: remove the notification part...
     const myNotification = new Notification('Logged In', {
       body: `Notification from AuthUseCase. Hey ${user.name}!`,
     });
@@ -22,5 +24,10 @@ export class AuthUseCases {
     myNotification.onclick = () => {
       console.log('Notification clicked');
     };
+  }
+
+  async logout(): Promise<void> {
+    console.log('logout useCase');
+    await store.dispatch('authStore/logout');
   }
 }
