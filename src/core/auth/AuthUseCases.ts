@@ -15,15 +15,6 @@ export class AuthUseCases {
     const user = await this.authService.login(username, password);
     store.commit('authStore/setUser', user);
     store.commit('authStore/setIsLoggedIn', true);
-
-    // TODO: remove the notification part...
-    const myNotification = new Notification('Logged In', {
-      body: `Notification from AuthUseCase. Hey ${user.name}!`,
-    });
-
-    myNotification.onclick = () => {
-      console.log('Notification clicked');
-    };
   }
 
   async logout(): Promise<void> {
