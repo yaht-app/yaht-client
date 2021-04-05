@@ -13,13 +13,10 @@ export class AuthUseCases {
 
   async login(username: string, password: string): Promise<void> {
     console.log('login useCase');
-    try {
-      const user: User = await this.authService.login(username, password);
-      store.commit('authStore/setUser', user);
-      store.commit('authStore/setIsLoggedIn', true);
-    } catch (e) {
-      console.error('An error occurred in AuthUseCases:login :', e);
-    }
+    const user: User = await this.authService.login(username, password);
+    store.commit('authStore/setUser', user);
+    store.commit('authStore/setIsLoggedIn', true);
+    store.commit('authStore/setToken', 'TODO');
   }
 
   async logout(): Promise<void> {
