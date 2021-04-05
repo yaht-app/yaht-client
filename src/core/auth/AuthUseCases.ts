@@ -1,4 +1,5 @@
 import type { AuthService } from '@/core/auth/AuthService';
+import { User } from '@/core/auth/models/User';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
 import store from '@/store';
@@ -12,9 +13,13 @@ export class AuthUseCases {
 
   async login(username: string, password: string): Promise<void> {
     console.log('login useCase');
-    const user = await this.authService.login(username, password);
-    store.commit('authStore/setUser', user);
-    store.commit('authStore/setIsLoggedIn', true);
+    try {
+      const user: User = await this.authService.login(username, password);
+      store.commit('authStore/setUser', user);
+      store.commit('authStore/setIsLoggedIn', true);
+    } catch (e) {
+      console.error('An error occurred in AuthUseCases:login :', e);
+    }
   }
 
   async logout(): Promise<void> {

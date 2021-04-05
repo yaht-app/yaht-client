@@ -1,4 +1,6 @@
+import { User } from '@/core/auth/models/User';
+
 export interface AuthService {
-  login(username: string, password: string): Promise<unknown>;
+  login(login: string, password: string): Promise<User>;
   logout(): Promise<unknown>;
 }

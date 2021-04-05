@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { User } from '@/core/auth/models/User';
 import { RootState } from '@/store/index';
-import { Module } from 'vuex';
+import { ActionContext, Module } from 'vuex';
 
 export interface AuthState {
   isLoggedIn: boolean;
-  user?: unknown;
+  user?: User;
 }
 
 const state: AuthState = {
@@ -13,7 +14,7 @@ const state: AuthState = {
 };
 
 const mutations = {
-  setUser(state: AuthState, user: unknown): void {
+  setUser(state: AuthState, user: User): void {
     state.user = user;
   },
   setIsLoggedIn(state: AuthState, isLoggedIn: boolean): void {
@@ -21,7 +22,7 @@ const mutations = {
   },
 };
 const actions = {
-  logout(context: any): void {
+  logout(context: ActionContext<AuthState, RootState>): void {
     context.commit('setUser', undefined);
     context.commit('setIsLoggedIn', false);
   },
