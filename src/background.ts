@@ -116,7 +116,7 @@ function handleNotificationInterval() {
 function sendNotification(
   title: string,
   message: string,
-  actions: NotificationAction[]
+  actions?: NotificationAction[]
 ) {
   const notification = new Notification({
     title: title,
