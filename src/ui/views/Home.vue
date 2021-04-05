@@ -42,6 +42,7 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/core/auth/AuthUseCases';
 import { User } from '@/core/auth/models/User';
+import { UserUseCases } from '@/core/user/UserUseCases';
 import { ipcRenderer } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -52,6 +53,7 @@ const auth = namespace('authStore');
 })
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
+  private userUseCase: UserUseCases;
   public userName = 'sebastian.richner@uzh.ch';
   public password = '';
 
@@ -61,11 +63,17 @@ export default class Home extends Vue {
   constructor() {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
+    this.userUseCase = this.$container.get(USE_CASE.USER);
   }
 
   async loginClicked(): void {
-    await this.authUseCase.login(this.userName, this.password);
-    ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
+    try {
+      await this.authUseCase.login(this.userName, this.password);
+      console.log(await this.userUseCase.getUserById(this.user.id));
+      ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   logoutClicked(): void {
