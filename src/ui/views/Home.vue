@@ -52,9 +52,10 @@ import { User } from '@/core/auth/models/User';
 import { BasicNotification } from '@/core/notification/models/BasicNotification';
 import { UserUseCases } from '@/core/user/UserUseCases';
 import { ipcRenderer } from 'electron';
+import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import { DateTime } from 'luxon';
+
 const auth = namespace('authStore');
 
 @Component({
@@ -89,26 +90,22 @@ export default class Home extends Vue {
   }
 
   private getMockNotifications(): BasicNotification[] {
-    const notifications = [
+    return [
       {
         triggerTimeAndDate: DateTime.now().plus({ seconds: 5 }).toMillis(),
         title: 'Start stretching',
-        message: 'Start stretching',
+        message: 'Stretch for 2 minutes',
         sent: false,
         actions: [{ text: 'Start', type: 'button' }],
       },
       {
         triggerTimeAndDate: DateTime.now().plus({ seconds: 15 }).toMillis(),
-        title: 'Start stretching',
-        message: 'Start stretching',
+        title: 'End stretching',
+        message: 'You have stretched for 2 minutes',
         sent: false,
-        actions: [
-          { text: 'OK    ›', type: 'button' },
-          { text: 'Skip', type: 'button' },
-        ],
       },
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 60 }).toMillis(),
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 30 }).toMillis(),
         title: 'Start stretching',
         message: 'Start stretching',
         sent: false,
@@ -118,17 +115,12 @@ export default class Home extends Vue {
         ],
       },
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 30 }).toMillis(),
-        title: 'Start stretching',
-        message: 'Start stretching',
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 40 }).toMillis(),
+        title: 'End stretching',
+        message: 'You have stretched for 2 minutes',
         sent: false,
-        actions: [
-          { text: 'OK ›', type: 'button' },
-          { text: 'Skip', type: 'button' },
-        ],
       },
     ];
-    return notifications;
   }
 
   logoutClicked(): void {
