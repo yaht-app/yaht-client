@@ -1,3 +1,4 @@
+import store from '@/store';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { injectable } from 'inversify';
 
