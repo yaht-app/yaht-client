@@ -1,6 +1,15 @@
 'use strict';
 
-import { app, protocol, BrowserWindow } from 'electron';
+import { BasicNotification } from '@/core/notification/models/BasicNotification';
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  Notification,
+  ipcMain,
+  NotificationAction,
+} from 'electron';
+import { DateTime } from 'luxon';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -10,10 +19,12 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
 
+let mainWindow: BrowserWindow;
+
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
-    width: 800,
+  mainWindow = new BrowserWindow({
+    width: 400,
     height: 600,
     webPreferences: {
       // Required for Spectron testing
@@ -24,12 +35,12 @@ async function createWindow() {
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
-    if (!process.env.IS_TEST) win.webContents.openDevTools();
+    await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
+    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
   } else {
     createProtocol('app');
     // Load the index.html when not in development
-    win.loadURL('app://./index.html');
+    mainWindow.loadURL('app://./index.html');
   }
 }
 
@@ -60,7 +71,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString());
     }
   }
-  createWindow();
+  await createWindow();
 });
 
 // Exit cleanly on request from parent process in development mode.
