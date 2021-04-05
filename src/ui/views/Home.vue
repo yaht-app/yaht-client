@@ -54,6 +54,7 @@ import { UserUseCases } from '@/core/user/UserUseCases';
 import { ipcRenderer } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
+import { DateTime } from 'luxon';
 const auth = namespace('authStore');
 
 @Component({
@@ -74,14 +75,60 @@ export default class Home extends Vue {
     this.userUseCase = this.$container.get(USE_CASE.USER);
   }
 
-  async loginClicked(): void {
+  async loginClicked(): Promise<void> {
     try {
       await this.authUseCase.login(this.userName, this.password);
-      console.log(await this.userUseCase.getUserById(this.user.id));
+      console.log(await this.userUseCase.getUserById(String(this.user.id)));
       ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
     } catch (e) {
       console.error(e);
     }
+
+    const notifications = this.getMockNotifications();
+    ipcRenderer.send('notifications', notifications);
+  }
+
+  private getMockNotifications(): BasicNotification[] {
+    const notifications = [
+      {
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 5 }).toMillis(),
+        title: 'Start stretching',
+        message: 'Start stretching',
+        sent: false,
+        actions: [{ text: 'Start', type: 'button' }],
+      },
+      {
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 15 }).toMillis(),
+        title: 'Start stretching',
+        message: 'Start stretching',
+        sent: false,
+        actions: [
+          { text: 'OK    ›', type: 'button' },
+          { text: 'Skip', type: 'button' },
+        ],
+      },
+      {
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 60 }).toMillis(),
+        title: 'Start stretching',
+        message: 'Start stretching',
+        sent: false,
+        actions: [
+          { text: 'OK  ›', type: 'button' },
+          { text: 'Skip', type: 'button' },
+        ],
+      },
+      {
+        triggerTimeAndDate: DateTime.now().plus({ seconds: 30 }).toMillis(),
+        title: 'Start stretching',
+        message: 'Start stretching',
+        sent: false,
+        actions: [
+          { text: 'OK ›', type: 'button' },
+          { text: 'Skip', type: 'button' },
+        ],
+      },
+    ];
+    return notifications;
   }
 
   logoutClicked(): void {
