@@ -14,8 +14,7 @@ export class HttpService {
 
     this.httpClient.interceptors.request.use((config) => {
       const newConfig = config;
-      // get token from store
-      const token = '1234567890';
+      const token = store.state.authStore.token;
       newConfig.headers.Authorization = token ? `Bearer ${token}` : '';
 
       return newConfig;
