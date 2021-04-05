@@ -34,6 +34,13 @@
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
         Welcome, {{ user.username }}!
       </h2>
+
+      <input
+        type="button"
+        value="Log out"
+        class="btn btn-primary w-full mt-5"
+        @click="logoutClicked"
+      />
     </div>
   </div>
 </template>
