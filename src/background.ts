@@ -77,3 +77,43 @@ if (isDevelopment) {
     });
   }
 }
+
+let notifications: BasicNotification[];
+let notificationInterval: NodeJS.Timeout;
+
+ipcMain.on('logout', () => {
+  clearInterval(notificationInterval);
+});
+ipcMain.on('notifications', (event, newNotifications) => {
+  console.log(`Received notifications, length: ${newNotifications.length}`);
+  notifications = newNotifications;
+  notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
+});
+
+function handleNotificationInterval() {
+  notifications.forEach((n) => {
+    const now = DateTime.now();
+    if (n.triggerTimeAndDate <= now.toMillis() && !n.sent) {
+      n.sent = true;
+      sendNotification(n.title, n.message, n.actions);
+    } else {
+      console.log(`Skipping BasicNotification ${n.title}`);
+    }
+  });
+}
+
+function sendNotification(
+  title: string,
+  message: string,
+  actions: NotificationAction[]
+) {
+  const notification = new Notification({
+    title: title,
+    body: message,
+    actions: actions,
+  });
+  notification.on('action', (event, index: number) => {
+    console.log(notification.actions[index]);
+  });
+  notification.show();
+}
