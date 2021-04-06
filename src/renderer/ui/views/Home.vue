@@ -128,6 +128,7 @@ export default class Home extends Vue {
   }
 
   logoutClicked(): void {
+    ipcRenderer.send('logout');
     this.authUseCase.logout();
   }
 }
