@@ -6,7 +6,7 @@
       </h2>
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow rounded-lg sm:px-10">
-          <form class="space-y-6">
+          <div class="space-y-6">
             <div class="field">
               <div class="mt-1">
                 <label for="userName">E-Mail / Username</label>
@@ -20,13 +20,15 @@
                 <input id="password" type="password" v-model="password" />
               </div>
             </div>
-            <input
-              type="button"
-              value="Log in"
-              class="btn btn-primary w-full"
-              @click="loginClicked"
-            />
-          </form>
+            <button class="btn btn-primary w-full" @click="loginClicked">
+              <img
+                src="../assets/spinner.svg"
+                v-if="isLoggingIn"
+                class="animate-spin"
+              />
+              <template v-else>Log in</template>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -64,6 +66,7 @@ const auth = namespace('authStore');
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
+  public isLoggingIn = false;
   public userName = 'sebastian.richner@uzh.ch';
   public password = '';
 
@@ -77,6 +80,7 @@ export default class Home extends Vue {
   }
 
   async loginClicked(): Promise<void> {
+    this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
       console.log(await this.userUseCase.getUserById(String(this.user.id)));
@@ -84,7 +88,7 @@ export default class Home extends Vue {
     } catch (e) {
       console.error(e);
     }
-
+    this.isLoggingIn = false;
     const notifications = this.getMockNotifications();
     ipcRenderer.send('notifications', notifications);
   }
