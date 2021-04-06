@@ -1,5 +1,5 @@
-import { User } from '@/core/auth/models/User';
-import { UserService } from '@/core/user/UserService';
+import { User } from '@/renderer/core/auth/models/User';
+import { UserService } from '@/renderer/core/user/UserService';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
 

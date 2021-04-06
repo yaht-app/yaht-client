@@ -1,4 +1,4 @@
-import { User } from '@/core/auth/models/User';
+import { User } from '@/renderer/core/auth/models/User';
 
 export interface AuthService {
   login(login: string, password: string): Promise<User>;

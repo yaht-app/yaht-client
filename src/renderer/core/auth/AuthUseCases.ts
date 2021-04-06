@@ -1,8 +1,8 @@
-import type { AuthService } from '@/core/auth/AuthService';
-import { User } from '@/core/auth/models/User';
+import type { AuthService } from '@/renderer/core/auth/AuthService';
+import { User } from '@/renderer/core/auth/models/User';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
-import store from '@/store';
+import store from '@/renderer/ui/store';
 
 @injectable()
 export class AuthUseCases {

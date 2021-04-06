@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { User } from '@/core/auth/models/User';
-import { RootState } from '@/store/index';
+import { User } from '@/renderer/core/auth/models/User';
+import { RootState } from '@/renderer/ui/store/index';
 import { ActionContext, Module } from 'vuex';
 
 export interface AuthState {

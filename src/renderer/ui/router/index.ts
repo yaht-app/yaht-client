@@ -1,5 +1,5 @@
-import Home from '@/ui/views/Home.vue';
-import About from '@/ui/views/About.vue';
+import Home from '@/renderer/ui/views/Home.vue';
+import About from '@/renderer/ui/views/About.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 

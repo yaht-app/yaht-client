@@ -1,11 +1,11 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
-import { AuthService } from '@/core/auth/AuthService';
-import { AuthUseCases } from '@/core/auth/AuthUseCases';
-import { UserService } from '@/core/user/UserService';
-import { UserUseCases } from '@/core/user/UserUseCases';
-import { JwtAuthService } from '@/infrastructure/auth/JwtAuthService';
-import { HttpService } from '@/infrastructure/http/HttpService';
-import { HttpUserService } from '@/infrastructure/user/HttpUserService';
+import { AuthService } from '@/renderer/core/auth/AuthService';
+import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
+import { UserService } from '@/renderer/core/user/UserService';
+import { UserUseCases } from '@/renderer/core/user/UserUseCases';
+import { JwtAuthService } from '@/renderer/infrastructure/auth/JwtAuthService';
+import { HttpService } from '@/renderer/infrastructure/http/HttpService';
+import { HttpUserService } from '@/renderer/infrastructure/user/HttpUserService';
 import { Container } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers';
 

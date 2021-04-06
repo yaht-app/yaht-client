@@ -11,7 +11,7 @@
 </template>
 
 <style lang="scss">
-@import 'ui/styles/global';
+@import 'styles/global';
 
 #app {
   @apply bg-white;

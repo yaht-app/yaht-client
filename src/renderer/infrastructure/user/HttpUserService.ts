@@ -1,8 +1,8 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
-import { User } from '@/core/auth/models/User';
-import { UserService } from '@/core/user/UserService';
-import { GenericResponse } from '@/GenericResponse';
-import { HttpService } from '@/infrastructure/http/HttpService';
+import { User } from '@/renderer/core/auth/models/User';
+import { UserService } from '@/renderer/core/user/UserService';
+import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
+import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { inject, injectable } from 'inversify';
 
 @injectable()

@@ -1,6 +1,6 @@
 'use strict';
 
-import { BasicNotification } from '@/core/notification/models/BasicNotification';
+import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import {
   app,
   protocol,

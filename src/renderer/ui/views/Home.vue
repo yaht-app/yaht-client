@@ -47,10 +47,10 @@
 
 <script lang="ts">
 import USE_CASE from '@/constants/UseCaseIdentifiers';
-import { AuthUseCases } from '@/core/auth/AuthUseCases';
-import { User } from '@/core/auth/models/User';
-import { BasicNotification } from '@/core/notification/models/BasicNotification';
-import { UserUseCases } from '@/core/user/UserUseCases';
+import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
+import { User } from '@/renderer/core/auth/models/User';
+import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
+import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { ipcRenderer } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
