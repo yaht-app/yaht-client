@@ -53,11 +53,13 @@ import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { User } from '@/renderer/core/auth/models/User';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
+import { getLogger } from '@/shared/logger';
 import { ipcRenderer } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
+const LOG = getLogger('Home');
 const auth = namespace('authStore');
 
 @Component({
@@ -66,6 +68,7 @@ const auth = namespace('authStore');
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
+
   public isLoggingIn = false;
   public userName = 'sebastian.richner@uzh.ch';
   public password = '';
@@ -80,6 +83,7 @@ export default class Home extends Vue {
   }
 
   async loginClicked(): Promise<void> {
+    LOG.info('Login clicked...');
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);

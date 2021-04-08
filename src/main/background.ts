@@ -1,6 +1,7 @@
 'use strict';
 
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
+import { getLogger } from '@/shared/logger';
 import {
   app,
   protocol,
@@ -12,7 +13,9 @@ import {
 import { DateTime } from 'luxon';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const LOG = getLogger('background.ts');
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -96,7 +99,7 @@ ipcMain.on('logout', () => {
   clearInterval(notificationInterval);
 });
 ipcMain.on('notifications', (event, newNotifications) => {
-  console.log(`Received notifications, length: ${newNotifications.length}`);
+  LOG.log(`Received notifications, length: ${newNotifications.length}`);
   notifications = newNotifications;
   notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
 });
@@ -108,7 +111,7 @@ function handleNotificationInterval() {
       n.sent = true;
       sendNotification(n.title, n.message, n.actions);
     } else {
-      console.log(`Skipping BasicNotification ${n.title}`);
+      LOG.log(`Skipping BasicNotification ${n.title}`);
     }
   });
 }
@@ -124,7 +127,7 @@ function sendNotification(
     actions: actions,
   });
   notification.on('action', (event, index: number) => {
-    console.log(notification.actions[index]);
+    LOG.log(notification.actions[index]);
   });
   notification.show();
 }
