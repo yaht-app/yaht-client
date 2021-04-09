@@ -37,12 +37,9 @@
         Welcome, {{ user.username }}!
       </h2>
 
-      <input
-        type="button"
-        value="Log out"
-        class="btn btn-primary w-full mt-5"
-        @click="logoutClicked"
-      />
+      <button class="btn btn-primary w-full mt-5" @click="logoutClicked">
+        Log out
+      </button>
     </div>
   </div>
 </template>
