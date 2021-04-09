@@ -18,4 +18,7 @@ const getLogger = (
   return logger;
 };
 
-export { getLogger };
+const logFile = logger.transports.file.getFile().path;
+const LOG_PATH = logFile.substring(0, logFile.lastIndexOf('/'));
+
+export { getLogger, LOG_PATH };

@@ -1,9 +1,11 @@
+import { WindowMenu } from '@/main/WindowMenu';
 import { BrowserWindow, globalShortcut } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 export class Bootstrap {
   public mainWindow!: Electron.BrowserWindow;
   public webContents!: Electron.WebContents;
+  private windowMenu!: WindowMenu;
 
   public ready: () => Promise<void> = async () => {
     await this.createWindow();
@@ -27,6 +29,9 @@ export class Bootstrap {
         this.webContents.reload()
       );
     }
+
+    this.windowMenu = new WindowMenu(this.mainWindow);
+    this.windowMenu.setAppMenu();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
