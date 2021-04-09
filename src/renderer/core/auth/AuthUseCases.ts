@@ -1,5 +1,5 @@
 import type { AuthService } from '@/renderer/core/auth/AuthService';
-import { User } from '@/renderer/core/auth/models/User';
+import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { getLogger } from '@/shared/logger';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
@@ -16,10 +16,10 @@ export class AuthUseCases {
 
   async login(username: string, password: string): Promise<void> {
     LOG.debug('login useCase');
-    const user: User = await this.authService.login(username, password);
+    const user: UserAuthDTO = await this.authService.login(username, password);
     store.commit('authStore/setUser', user);
     store.commit('authStore/setIsLoggedIn', true);
-    store.commit('authStore/setToken', 'TODO');
+    store.commit('authStore/setToken', user.token);
   }
 
   async logout(): Promise<void> {

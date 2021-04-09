@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { User } from '@/renderer/core/auth/models/User';
+import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { RootState } from '@/renderer/ui/store/index';
 import { ActionContext, Module } from 'vuex';
 
 export interface AuthState {
   isLoggedIn: boolean;
-  user?: User;
+  user?: UserAuthDTO;
   token: string;
 }
 
@@ -16,7 +16,7 @@ const state: AuthState = {
 };
 
 const mutations = {
-  setUser(state: AuthState, user: User): void {
+  setUser(state: AuthState, user: UserAuthDTO): void {
     state.user = user;
   },
   setIsLoggedIn(state: AuthState, isLoggedIn: boolean): void {
