@@ -71,7 +71,7 @@ app.on('ready', async () => {
     try {
       await installExtension(VUEJS_DEVTOOLS);
     } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString());
+      LOG.error('Vue Devtools failed to install:', e.toString());
     }
   }
   await createWindow();
@@ -111,7 +111,7 @@ function handleNotificationInterval() {
       n.sent = true;
       sendNotification(n.title, n.message, n.actions);
     } else {
-      LOG.log(`Skipping BasicNotification ${n.title}`);
+      LOG.debug(`Skipping BasicNotification ${n.title}`);
     }
   });
 }

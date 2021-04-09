@@ -87,10 +87,10 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      console.log(await this.userUseCase.getUserById(String(this.user.id)));
+      LOG.debug(await this.userUseCase.getUserById(String(this.user.id)));
       ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
     } catch (e) {
-      console.error(e);
+      LOG.error(e);
     }
     this.isLoggingIn = false;
     const notifications = this.getMockNotifications();

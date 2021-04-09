@@ -3,7 +3,10 @@ import { AuthService } from '@/renderer/core/auth/AuthService';
 import { User } from '@/renderer/core/auth/models/User';
 import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
+import { getLogger } from '@/shared/logger';
 import { inject, injectable } from 'inversify';
+
+const LOG = getLogger('JwtAuthService');
 
 @injectable()
 export class JwtAuthService implements AuthService {
@@ -21,10 +24,10 @@ export class JwtAuthService implements AuthService {
         password,
       },
     });
-    console.log(response);
+    LOG.debug(response);
 
     if (response.data.data.error) {
-      console.warn(response.data.error);
+      LOG.error(response.data.error);
       throw new Error(response.data.error);
     }
     // this.user = jwtDecode((response.data.data as any).token);
@@ -34,7 +37,7 @@ export class JwtAuthService implements AuthService {
   }
 
   logout(): Promise<unknown> {
-    console.debug('Logging out...');
+    LOG.debug('Logging out...');
     return this.httpService.post<GenericResponse>('/auth/logout');
   }
 }
