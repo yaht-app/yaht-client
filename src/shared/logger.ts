@@ -1,4 +1,4 @@
-import { LOG_FILE_NAME } from '@/config/logger.config';
+import { LOG_FILE_NAME, LOG_LEVEL } from '@/config/logger.config';
 import ElectronLog from 'electron-log';
 import logger from 'electron-log';
 
@@ -13,6 +13,8 @@ const getLogger = (
 
   logger.scope(loggerName);
   logger.transports.file.fileName = `${currentDate}-${processName}.log`;
+  logger.transports.file.level = LOG_LEVEL.FILE;
+  logger.transports.console.level = LOG_LEVEL.CONSOLE;
   return logger;
 };
 
