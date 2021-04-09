@@ -1,5 +1,6 @@
 'use strict';
 
+import { Bootstrap } from '@/main/Bootstrap';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import {
@@ -11,7 +12,6 @@ import {
   NotificationAction,
 } from 'electron';
 import { DateTime } from 'luxon';
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -22,30 +22,7 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
 
-let mainWindow: BrowserWindow;
-
-async function createWindow() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 400,
-    height: 600,
-    webPreferences: {
-      // Required for Spectron testing
-      enableRemoteModule: true,
-      nodeIntegration: true,
-    },
-  });
-
-  if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
-    await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
-    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
-  } else {
-    createProtocol('app');
-    // Load the index.html when not in development
-    mainWindow.loadURL('app://./index.html');
-  }
-}
+const system: Bootstrap = new Bootstrap();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -59,7 +36,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (BrowserWindow.getAllWindows().length === 0) system.ready();
 });
 
 // This method will be called when Electron has finished
@@ -74,7 +51,7 @@ app.on('ready', async () => {
       LOG.error('Vue Devtools failed to install:', e.toString());
     }
   }
-  await createWindow();
+  await system.ready();
 });
 
 // Exit cleanly on request from parent process in development mode.
