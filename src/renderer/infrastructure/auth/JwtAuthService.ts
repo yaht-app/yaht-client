@@ -18,18 +18,16 @@ export class JwtAuthService implements AuthService {
   private user: UserAuthDTO | undefined;
 
   async login(login: string, password: string): Promise<UserAuthDTO> {
-    const response = await this.httpService.post<GenericResponse>('/auth', {
-      user: {
-        login,
-        password,
-      },
-    });
+    const response = await this.httpService.post<GenericResponse<UserAuthDTO>>(
+      '/auth',
+      {
+        user: {
+          login,
+          password,
+        },
+      }
+    );
     LOG.debug(response);
-
-    if (response.data.data.error) {
-      LOG.error(response.data.error);
-      throw new Error(response.data.error);
-    }
 
     this.user = response.data.data as UserAuthDTO;
     return this.user;
@@ -37,6 +35,6 @@ export class JwtAuthService implements AuthService {
 
   logout(): Promise<unknown> {
     LOG.debug('Logging out...');
-    return this.httpService.post<GenericResponse>('/auth/logout');
+    return this.httpService.post('/auth/logout');
   }
 }

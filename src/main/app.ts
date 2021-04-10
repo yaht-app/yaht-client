@@ -78,7 +78,7 @@ ipcMain.on('logout', () => {
 ipcMain.on('notifications', (event, newNotifications) => {
   LOG.log(`Received notifications, length: ${newNotifications.length}`);
   notifications = newNotifications;
-  notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
+  // notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
 });
 
 function handleNotificationInterval() {

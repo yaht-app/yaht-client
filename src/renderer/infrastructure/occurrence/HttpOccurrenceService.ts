@@ -1,6 +1,7 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceService } from '@/renderer/core/occurrence/OccurrenceService';
+import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
 import { AxiosResponse } from 'axios';
@@ -15,11 +16,11 @@ export class HttpOccurrenceService implements OccurrenceService {
   ) {}
 
   async getOccurrencesByUserId(userId: number): Promise<Occurrence[]> {
-    const body: AxiosResponse<Occurrence[]> = await this.httpService.get<
-      Occurrence[]
-    >(`/users/${userId}/occurrences`);
+    const response: AxiosResponse<
+      GenericResponse<Occurrence[]>
+    > = await this.httpService.get(`/users/${userId}/occurrences`);
 
-    this.LOG.info(body);
-    return body.data;
+    this.LOG.debug(`Got occurrencesByUserId(${userId}): `, response.data.data);
+    return response.data.data;
   }
 }
