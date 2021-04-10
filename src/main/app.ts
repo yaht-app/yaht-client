@@ -1,6 +1,7 @@
 'use strict';
 
 import { Bootstrap } from '@/main/Bootstrap';
+import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { getLogger } from '@/shared/logger';
 import {
@@ -69,28 +70,51 @@ if (isDevelopment) {
   }
 }
 
-let notifications: Occurrence[];
+let notifications: BasicNotification[];
 let notificationInterval: NodeJS.Timeout;
 
 ipcMain.on('logout', () => {
   clearInterval(notificationInterval);
 });
-ipcMain.on('notifications', (event, newNotifications) => {
-  LOG.log(`Received notifications, length: ${newNotifications.length}`);
-  notifications = newNotifications;
-  // notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
+ipcMain.on('notifications', (event, newOccurrences) => {
+  LOG.log(`Received notifications, length: ${newOccurrences.length}`);
+  notifications = createNotificationsFromOccurrences(newOccurrences);
+  notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
 });
 
+function createNotificationsFromOccurrences(occurrences: Occurrence[]) {
+  return occurrences.map((o) => {
+    return new BasicNotification(
+      o.habit.title,
+      `${o.habit.title} is starting...`,
+      [],
+      false,
+      DateTime.fromISO(o.scheduled_at),
+      1,
+      1,
+      1
+    );
+  });
+}
+
+function isWithinFiveMinutes(dateTime: DateTime) {
+  LOG.debug(dateTime);
+  return (
+    dateTime.diffNow('minutes').minutes <= 5 &&
+    dateTime.diffNow('minutes').minutes >= -5
+  );
+}
+
 function handleNotificationInterval() {
+  LOG.debug('handleNotificationInterval called');
   notifications.forEach((n) => {
-    LOG.debug(n);
-    // const now = DateTime.now();
-    // if (n.triggerTimeAndDate <= now.toMillis() && !n.sent) {
-    //   n.sent = true;
-    //   sendNotification(n.title, n.message, n.actions);
-    // } else {
-    //   LOG.debug(`Skipping BasicNotification ${n.title}`);
-    // }
+    LOG.debug(n.scheduledAt.diffNow('minutes').minutes);
+    if (!n.shown && isWithinFiveMinutes(n.scheduledAt)) {
+      n.shown = true;
+      sendNotification(n.title, n.message, n.actions);
+    } else {
+      LOG.debug(`Skipping BasicNotification ${n.title}`);
+    }
   });
 }
 
@@ -99,6 +123,7 @@ function sendNotification(
   message: string,
   actions?: NotificationAction[]
 ) {
+  LOG.debug(`sendNotification(${title}`);
   const notification = new Notification({
     title: title,
     body: message,
