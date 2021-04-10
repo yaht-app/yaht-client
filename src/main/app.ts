@@ -1,7 +1,7 @@
 'use strict';
 
 import { Bootstrap } from '@/main/Bootstrap';
-import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
+import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { getLogger } from '@/shared/logger';
 import {
   app,
@@ -69,7 +69,7 @@ if (isDevelopment) {
   }
 }
 
-let notifications: BasicNotification[];
+let notifications: Occurrence[];
 let notificationInterval: NodeJS.Timeout;
 
 ipcMain.on('logout', () => {
@@ -83,13 +83,14 @@ ipcMain.on('notifications', (event, newNotifications) => {
 
 function handleNotificationInterval() {
   notifications.forEach((n) => {
-    const now = DateTime.now();
-    if (n.triggerTimeAndDate <= now.toMillis() && !n.sent) {
-      n.sent = true;
-      sendNotification(n.title, n.message, n.actions);
-    } else {
-      LOG.debug(`Skipping BasicNotification ${n.title}`);
-    }
+    LOG.debug(n);
+    // const now = DateTime.now();
+    // if (n.triggerTimeAndDate <= now.toMillis() && !n.sent) {
+    //   n.sent = true;
+    //   sendNotification(n.title, n.message, n.actions);
+    // } else {
+    //   LOG.debug(`Skipping BasicNotification ${n.title}`);
+    // }
   });
 }
 
