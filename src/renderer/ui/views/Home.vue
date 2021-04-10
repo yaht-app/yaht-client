@@ -86,21 +86,24 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      LOG.warn(await this.occurrenceUseCase.getOccurrenceForUser(this.user.id));
       ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
+      const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
+        this.user.id
+      );
+      LOG.debug('Notifications loaded: ', notifications);
+
+      ipcRenderer.send('notifications', this.getMockNotifications());
     } catch (e) {
       LOG.error(e);
     }
     this.isLoggingIn = false;
-    const notifications = this.getMockNotifications();
-    ipcRenderer.send('notifications', notifications);
   }
 
   private getMockNotifications(): Occurrence[] {
     return [
       {
         id: 249,
-        scheduled_at: '2021-04-10T00:15:00.000Z',
+        scheduled_at: '2021-04-10T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -113,7 +116,7 @@ export default class Home extends Vue {
       },
       {
         id: 250,
-        scheduled_at: '2021-04-11T00:15:00.000Z',
+        scheduled_at: '2021-04-11T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -126,7 +129,7 @@ export default class Home extends Vue {
       },
       {
         id: 251,
-        scheduled_at: '2021-04-12T00:15:00.000Z',
+        scheduled_at: '2021-04-12T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -139,7 +142,7 @@ export default class Home extends Vue {
       },
       {
         id: 252,
-        scheduled_at: '2021-04-13T00:15:00.000Z',
+        scheduled_at: '2021-04-13T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -152,7 +155,7 @@ export default class Home extends Vue {
       },
       {
         id: 253,
-        scheduled_at: '2021-04-14T00:15:00.000Z',
+        scheduled_at: '2021-04-14T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -165,7 +168,7 @@ export default class Home extends Vue {
       },
       {
         id: 254,
-        scheduled_at: '2021-04-15T00:15:00.000Z',
+        scheduled_at: '2021-04-15T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
@@ -178,7 +181,7 @@ export default class Home extends Vue {
       },
       {
         id: 255,
-        scheduled_at: '2021-04-16T00:15:00.000Z',
+        scheduled_at: '2021-04-16T16:06:40.000Z',
         started_at: null,
         ended_at: null,
         skipped_at: null,
