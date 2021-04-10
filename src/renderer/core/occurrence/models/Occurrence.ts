@@ -7,7 +7,7 @@ export interface Habit {
 
 export interface Occurrence {
   id: number;
-  scheduled_at: string | null;
+  scheduled_at: string;
   started_at: string | null;
   ended_at: string | null;
   skipped_at: string | null;
