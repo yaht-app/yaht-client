@@ -8,7 +8,7 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeintegration: true,
-      mainProcessFile: 'src/main/background.ts',
+      mainProcessFile: 'src/main/app.ts',
       builderOptions: {
         mac: {
           extendInfo: {

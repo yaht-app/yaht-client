@@ -37,12 +37,9 @@
         Welcome, {{ user.username }}!
       </h2>
 
-      <input
-        type="button"
-        value="Log out"
-        class="btn btn-primary w-full mt-5"
-        @click="logoutClicked"
-      />
+      <button class="btn btn-primary w-full mt-5" @click="logoutClicked">
+        Log out
+      </button>
     </div>
   </div>
 </template>
@@ -50,14 +47,16 @@
 <script lang="ts">
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
-import { User } from '@/renderer/core/auth/models/User';
-import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
+import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
+import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
+import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
+import { getLogger } from '@/shared/logger';
 import { ipcRenderer } from 'electron';
-import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
+const LOG = getLogger('Home');
 const auth = namespace('authStore');
 
 @Component({
@@ -66,63 +65,132 @@ const auth = namespace('authStore');
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
+  private occurrenceUseCase: OccurrenceUseCases;
+
   public isLoggingIn = false;
   public userName = 'sebastian.richner@uzh.ch';
   public password = '';
 
   @auth.State isLoggedIn!: boolean;
-  @auth.State user!: User;
+  @auth.State user!: UserAuthDTO;
 
   constructor() {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
     this.userUseCase = this.$container.get(USE_CASE.USER);
+    this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
   }
 
   async loginClicked(): Promise<void> {
+    LOG.info('Login clicked...');
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      console.log(await this.userUseCase.getUserById(String(this.user.id)));
       ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
+      const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
+        this.user.id
+      );
+      LOG.debug('Notifications loaded: ', notifications);
+
+      ipcRenderer.send('notifications', this.getMockNotifications());
     } catch (e) {
-      console.error(e);
+      LOG.error(e);
     }
     this.isLoggingIn = false;
-    const notifications = this.getMockNotifications();
-    ipcRenderer.send('notifications', notifications);
   }
 
-  private getMockNotifications(): BasicNotification[] {
+  private getMockNotifications(): Occurrence[] {
     return [
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 5 }).toMillis(),
-        title: 'Start stretching',
-        message: 'Stretch for 2 minutes',
-        sent: false,
-        actions: [{ text: 'Start', type: 'button' }],
+        id: 249,
+        scheduled_at: '2021-04-10T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
       },
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 15 }).toMillis(),
-        title: 'End stretching',
-        message: 'You have stretched for 2 minutes',
-        sent: false,
+        id: 250,
+        scheduled_at: '2021-04-11T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
       },
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 30 }).toMillis(),
-        title: 'Start stretching',
-        message: 'Start stretching',
-        sent: false,
-        actions: [
-          { text: 'OK  ›', type: 'button' },
-          { text: 'Skip', type: 'button' },
-        ],
+        id: 251,
+        scheduled_at: '2021-04-12T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
       },
       {
-        triggerTimeAndDate: DateTime.now().plus({ seconds: 40 }).toMillis(),
-        title: 'End stretching',
-        message: 'You have stretched for 2 minutes',
-        sent: false,
+        id: 252,
+        scheduled_at: '2021-04-13T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
+      },
+      {
+        id: 253,
+        scheduled_at: '2021-04-14T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
+      },
+      {
+        id: 254,
+        scheduled_at: '2021-04-15T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
+      },
+      {
+        id: 255,
+        scheduled_at: '2021-04-16T16:06:40.000Z',
+        started_at: null,
+        ended_at: null,
+        skipped_at: null,
+        habit: {
+          id: 4,
+          title: 'testing',
+          duration: 5,
+          is_skippable: false,
+        },
       },
     ];
   }

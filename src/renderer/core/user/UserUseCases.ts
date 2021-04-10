@@ -1,4 +1,4 @@
-import { User } from '@/renderer/core/auth/models/User';
+import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { UserService } from '@/renderer/core/user/UserService';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
@@ -10,7 +10,7 @@ export class UserUseCases {
     private readonly userService: UserService
   ) {}
 
-  async getUserById(userId: string): Promise<User> {
+  async getUserById(userId: string): Promise<UserAuthDTO> {
     return await this.userService.getUserById(userId);
   }
 }
