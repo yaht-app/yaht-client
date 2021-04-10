@@ -10,7 +10,7 @@ export class OccurrenceUseCases {
     private readonly occurrenceService: OccurrenceService
   ) {}
 
-  async getOccurrenceForUser(userId: number): Promise<Occurrence[]> {
+  async getOccurrencesForUser(userId: number): Promise<Occurrence[]> {
     return await this.occurrenceService.getOccurrencesByUserId(userId);
   }
 }
