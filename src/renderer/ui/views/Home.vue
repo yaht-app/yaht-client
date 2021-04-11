@@ -33,9 +33,9 @@
       </div>
     </div>
     <div class="temporary-user-wrapper" v-else>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h1 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
         Welcome, {{ user.username }}!
-      </h2>
+      </h1>
 
       <button class="btn btn-primary w-full mt-5" @click="logoutClicked">
         Log out
