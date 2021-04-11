@@ -22,7 +22,7 @@
             </div>
             <button class="btn btn-primary w-full" @click="loginClicked">
               <img
-                src="../assets/spinner.svg"
+                src="~@/renderer/ui/assets/spinner.svg"
                 v-if="isLoggingIn"
                 class="animate-spin"
               />
