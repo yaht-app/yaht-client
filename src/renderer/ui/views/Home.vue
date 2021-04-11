@@ -1,9 +1,9 @@
 <template>
   <div class="welcome-screen">
     <div class="login-wrapper" v-if="!isLoggedIn">
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h1 class="mt-6 text-center text-3xl font-extrabold">
         Sign in to your account
-      </h2>
+      </h1>
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow rounded-lg sm:px-10">
           <div class="space-y-6">
