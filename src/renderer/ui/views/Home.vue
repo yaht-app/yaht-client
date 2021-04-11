@@ -1,5 +1,6 @@
 <template>
   <div class="welcome-screen">
+    <img src="~@/renderer/ui/assets/images/yaht-logo.svg" class="yaht-logo" />
     <div class="login-wrapper" v-if="!isLoggedIn">
       <h1 class="mt-6 text-center text-3xl font-extrabold">
         Sign in to your account
@@ -22,7 +23,7 @@
             </div>
             <button class="btn btn-primary w-full" @click="loginClicked">
               <img
-                src="~@/renderer/ui/assets/spinner.svg"
+                src="~@/renderer/ui/assets/images/spinner.svg"
                 v-if="isLoggingIn"
                 class="animate-spin"
               />
@@ -204,6 +205,11 @@ export default class Home extends Vue {
 
 <style lang="scss" scoped>
 .welcome-screen {
-  @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5;
+  @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5 relative;
+
+  .yaht-logo {
+    @apply absolute top-10 left-1/2 transform -translate-x-1/2 opacity-70 transition-opacity hover:opacity-100;
+    width: 120px;
+  }
 }
 </style>
