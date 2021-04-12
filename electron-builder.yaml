@@ -10,6 +10,8 @@ mac:
   extendInfo:
     NSUserNotificationAlertStyle: alert
 
+afterSign: notarization/notarize.js
+
 publish:
   provider: github
   repo: yaht-client-dist
