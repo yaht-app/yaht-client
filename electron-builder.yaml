@@ -1,0 +1,16 @@
+appId: app.yaht.client
+productName: yaht
+copyright: Copyright © 2021 The Yaht Team
+
+extraResources:
+  from: src/resources/
+  to: resources/
+
+mac:
+  extendInfo:
+    NSUserNotificationAlertStyle: alert
+
+publish:
+  provider: github
+  repo: yaht-client-dist
+  owner: yaht-app

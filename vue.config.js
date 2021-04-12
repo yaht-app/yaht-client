@@ -9,17 +9,6 @@ module.exports = {
     electronBuilder: {
       nodeintegration: true,
       mainProcessFile: 'src/main/app.ts',
-      builderOptions: {
-        extraResources: {
-          from: 'src/resources/',
-          to: 'resources/',
-        },
-        mac: {
-          extendInfo: {
-            NSUserNotificationAlertStyle: 'alert',
-          },
-        },
-      },
     },
   },
 };
