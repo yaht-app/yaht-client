@@ -54,6 +54,7 @@ import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCase
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { getLogger } from '@/shared/logger';
 import { ipcRenderer } from 'electron';
+import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
@@ -87,13 +88,11 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
       const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
-      LOG.debug('Notifications loaded: ', notifications);
-
-      ipcRenderer.send('notifications', this.getMockNotifications());
+      LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
+      ipcRenderer.send('notifications', notifications);
     } catch (e) {
       LOG.error(e);
     }
@@ -104,92 +103,33 @@ export default class Home extends Vue {
     return [
       {
         id: 249,
-        scheduled_at: '2021-04-10T16:06:40.000Z',
+        scheduled_at: DateTime.now()
+          .plus({ minute: 1 })
+          .set({ second: 0 })
+          .toISO(),
         started_at: null,
         ended_at: null,
         skipped_at: null,
         habit: {
           id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
+          title: 'stretching',
+          duration: 0.5,
+          is_skippable: true,
         },
       },
       {
         id: 250,
-        scheduled_at: '2021-04-11T16:06:40.000Z',
+        scheduled_at: DateTime.now()
+          .plus({ minute: 2 })
+          .set({ second: 0 })
+          .toISO(),
         started_at: null,
         ended_at: null,
         skipped_at: null,
         habit: {
           id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 251,
-        scheduled_at: '2021-04-12T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 252,
-        scheduled_at: '2021-04-13T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 253,
-        scheduled_at: '2021-04-14T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 254,
-        scheduled_at: '2021-04-15T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 255,
-        scheduled_at: '2021-04-16T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
+          title: 'focusing',
+          duration: 0.5,
           is_skippable: false,
         },
       },
