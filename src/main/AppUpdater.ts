@@ -5,6 +5,9 @@ const LOG = getLogger('AutoUpdater');
 export default class AppUpdater {
   constructor() {
     autoUpdater.logger = LOG;
+  }
+
+  public checkForUpdatesAndNotify(): void {
     autoUpdater.checkForUpdatesAndNotify();
   }
 }

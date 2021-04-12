@@ -1,5 +1,6 @@
 'use strict';
 
+import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
@@ -24,6 +25,7 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 const system: Bootstrap = new Bootstrap();
+const updater: AppUpdater = new AppUpdater();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -53,6 +55,7 @@ app.on('ready', async () => {
     }
   }
   await system.ready();
+  updater.checkForUpdatesAndNotify();
 });
 
 // Exit cleanly on request from parent process in development mode.
