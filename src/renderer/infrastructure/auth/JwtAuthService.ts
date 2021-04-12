@@ -27,7 +27,6 @@ export class JwtAuthService implements AuthService {
         },
       }
     );
-    LOG.debug(response);
 
     this.user = response.data.data as UserAuthDTO;
     return this.user;
