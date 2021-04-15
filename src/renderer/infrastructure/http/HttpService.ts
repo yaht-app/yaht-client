@@ -37,4 +37,12 @@ export class HttpService {
   ): Promise<AxiosResponse<T>> {
     return this.httpClient.post(url, data, { headers });
   }
+
+  async put<T>(
+    url: string,
+    data?: unknown,
+    headers?: Record<string, string>
+  ): Promise<AxiosResponse<T>> {
+    return this.httpClient.put(url, data, { headers });
+  }
 }
