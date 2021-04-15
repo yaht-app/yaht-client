@@ -17,10 +17,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Install dependencies and build
+      - name: Build and deploy
         run: |
           yarn install
-          yarn electron:build
+          yarn build-and-deploy
+
 
 
     
