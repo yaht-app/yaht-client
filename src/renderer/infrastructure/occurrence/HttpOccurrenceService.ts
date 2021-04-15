@@ -20,7 +20,9 @@ export class HttpOccurrenceService implements OccurrenceService {
       GenericResponse<Occurrence[]>
     > = await this.httpService.get(`/users/${userId}/occurrences`);
 
-    this.LOG.debug(`Got occurrencesByUserId(${userId}): `, response.data.data);
+    this.LOG.debug(
+      `Got occurrencesByUserId(${userId}), length=${response.data.data.length}`
+    );
     return response.data.data;
   }
 }

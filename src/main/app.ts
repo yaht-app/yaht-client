@@ -1,6 +1,8 @@
 'use strict';
 
+import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
+import { NotificationService } from '@/main/core/NotificationService';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { getLogger } from '@/shared/logger';
@@ -8,7 +10,6 @@ import {
   app,
   protocol,
   BrowserWindow,
-  Notification,
   ipcMain,
   NotificationAction,
 } from 'electron';
@@ -24,6 +25,8 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 const system: Bootstrap = new Bootstrap();
+const updater: AppUpdater = new AppUpdater();
+const notificationService = new NotificationService();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -53,6 +56,8 @@ app.on('ready', async () => {
     }
   }
   await system.ready();
+  updater.checkForUpdatesAndNotify();
+  notificationService.setWebContents(system.webContents);
 });
 
 // Exit cleanly on request from parent process in development mode.
@@ -70,67 +75,35 @@ if (isDevelopment) {
   }
 }
 
-let notifications: BasicNotification[];
-let notificationInterval: NodeJS.Timeout;
-
 ipcMain.on('logout', () => {
-  clearInterval(notificationInterval);
+  notificationService.stopService();
 });
+
 ipcMain.on('notifications', (event, newOccurrences) => {
   LOG.log(`Received notifications, length: ${newOccurrences.length}`);
-  notifications = createNotificationsFromOccurrences(newOccurrences);
-  notificationInterval = setInterval(() => handleNotificationInterval(), 1000);
+  try {
+    const notifications = createNotificationsFromOccurrences(newOccurrences);
+    notificationService.setBasicNotifications(notifications);
+  } catch (e) {
+    LOG.error(e);
+  }
 });
 
 function createNotificationsFromOccurrences(occurrences: Occurrence[]) {
   return occurrences.map((o) => {
+    const actions: NotificationAction[] = [];
+    if (o.habit.is_skippable) {
+      actions.push({ text: 'Skip', type: 'button' });
+    }
     return new BasicNotification(
+      o.id,
+      'start',
       o.habit.title,
-      `${o.habit.title} is starting...`,
-      [],
-      false,
+      `Start ${o.habit.title} now`,
       DateTime.fromISO(o.scheduled_at),
-      1,
-      1,
-      1
+      `Start ${o.habit.title}`,
+      actions,
+      o.habit.duration
     );
   });
-}
-
-function isWithinFiveMinutes(dateTime: DateTime) {
-  LOG.debug(dateTime);
-  return (
-    dateTime.diffNow('minutes').minutes <= 5 &&
-    dateTime.diffNow('minutes').minutes >= -5
-  );
-}
-
-function handleNotificationInterval() {
-  LOG.debug('handleNotificationInterval called');
-  notifications.forEach((n) => {
-    LOG.debug(n.scheduledAt.diffNow('minutes').minutes);
-    if (!n.shown && isWithinFiveMinutes(n.scheduledAt)) {
-      n.shown = true;
-      sendNotification(n.title, n.message, n.actions);
-    } else {
-      LOG.debug(`Skipping BasicNotification ${n.title}`);
-    }
-  });
-}
-
-function sendNotification(
-  title: string,
-  message: string,
-  actions?: NotificationAction[]
-) {
-  LOG.debug(`sendNotification(${title}`);
-  const notification = new Notification({
-    title: title,
-    body: message,
-    actions: actions,
-  });
-  notification.on('action', (event, index: number) => {
-    LOG.log(notification.actions[index]);
-  });
-  notification.show();
 }

@@ -1,14 +1,37 @@
 import { WindowMenu } from '@/main/WindowMenu';
-import { BrowserWindow, globalShortcut } from 'electron';
+import { getLogger } from '@/shared/logger';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  globalShortcut,
+  Menu,
+  MenuItem,
+  nativeImage,
+  Tray,
+} from 'electron';
+import { LogFunctions } from 'electron-log';
+import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 export class Bootstrap {
   public mainWindow!: Electron.BrowserWindow;
   public webContents!: Electron.WebContents;
   private windowMenu!: WindowMenu;
+  private tray!: Electron.Tray;
+  private readonly LOG: LogFunctions = getLogger('Bootstrap');
+  private readonly isDevelopment: boolean =
+    process.env.NODE_ENV === 'development';
+  private readonly assetsPath = this.isDevelopment
+    ? './src/resources'
+    : path.join(process.resourcesPath, 'resources');
 
   public ready: () => Promise<void> = async () => {
-    await this.createWindow();
+    try {
+      await this.createWindow();
+    } catch (e) {
+      this.LOG.error(e);
+    }
   };
 
   private async createWindow(): Promise<void> {
@@ -24,7 +47,7 @@ export class Bootstrap {
     });
     this.webContents = this.mainWindow.webContents;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (this.isDevelopment) {
       globalShortcut.register('CommandOrControl+R', () =>
         this.webContents.reload()
       );
@@ -32,6 +55,7 @@ export class Bootstrap {
 
     this.windowMenu = new WindowMenu(this.mainWindow);
     this.windowMenu.setAppMenu();
+    this.setTray();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
@@ -44,5 +68,35 @@ export class Bootstrap {
       // Load the index.html when not in development
       await this.mainWindow.loadURL('app://./index.html');
     }
+  }
+
+  private setTray(): void {
+    const trayImage = nativeImage.createFromPath(
+      `${this.assetsPath}/tray@2x.png`
+    );
+    const alertImage = nativeImage.createFromPath(
+      `${this.assetsPath}/icon@2x.png`
+    );
+    this.tray = new Tray(trayImage);
+
+    this.tray.setContextMenu(
+      Menu.buildFromTemplate([
+        new MenuItem({
+          label: 'Check for Updates',
+          click: () => {
+            dialog.showMessageBox({
+              message: 'No updates available',
+              icon: alertImage,
+            });
+          },
+        }),
+        new MenuItem({
+          label: 'Quit',
+          click: () => {
+            app.quit();
+          },
+        }),
+      ])
+    );
   }
 }

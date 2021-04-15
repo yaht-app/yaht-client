@@ -1,9 +1,10 @@
 <template>
   <div class="welcome-screen">
+    <img src="~@/renderer/ui/assets/images/yaht-logo.svg" class="yaht-logo" />
     <div class="login-wrapper" v-if="!isLoggedIn">
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h1 class="mt-6 text-center text-3xl font-extrabold">
         Sign in to your account
-      </h2>
+      </h1>
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow rounded-lg sm:px-10">
           <div class="space-y-6">
@@ -22,7 +23,7 @@
             </div>
             <button class="btn btn-primary w-full" @click="loginClicked">
               <img
-                src="../assets/spinner.svg"
+                src="~@/renderer/ui/assets/images/spinner.svg"
                 v-if="isLoggingIn"
                 class="animate-spin"
               />
@@ -33,9 +34,9 @@
       </div>
     </div>
     <div class="temporary-user-wrapper" v-else>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h1 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
         Welcome, {{ user.username }}!
-      </h2>
+      </h1>
 
       <button class="btn btn-primary w-full mt-5" @click="logoutClicked">
         Log out
@@ -45,14 +46,20 @@
 </template>
 
 <script lang="ts">
+import SERVICE from '@/constants/ServiceIdentifiers';
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
+import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
+import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
+import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer } from 'electron';
+import { AxiosResponse } from 'axios';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
@@ -66,6 +73,7 @@ export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
   private occurrenceUseCase: OccurrenceUseCases;
+  private httpService: HttpService;
 
   public isLoggingIn = false;
   public userName = 'sebastian.richner@uzh.ch';
@@ -79,6 +87,13 @@ export default class Home extends Vue {
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
     this.userUseCase = this.$container.get(USE_CASE.USER);
     this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
+    this.httpService = this.$container.get(SERVICE.HTTP);
+  }
+
+  created() {
+    ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
+    ipcRenderer.on('notification-started', this.handleStartedNotification);
+    ipcRenderer.on('notification-ended', this.handleEndedNotification);
   }
 
   async loginClicked(): Promise<void> {
@@ -86,12 +101,10 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      ipcRenderer.send('from-renderer', `Welcome, ${this.user.username} !`);
       const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
-      LOG.debug('Notifications loaded: ', notifications);
-
+      LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
       ipcRenderer.send('notifications', this.getMockNotifications());
     } catch (e) {
       LOG.error(e);
@@ -99,96 +112,103 @@ export default class Home extends Vue {
     this.isLoggingIn = false;
   }
 
+  async handleSkippedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-skipped for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          skipped_at: notification.skippedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
+  }
+
+  async handleStartedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-started for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          started_at: notification.startedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
+  }
+
+  async handleEndedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-ended for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          ended_at: notification.endedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
+  }
+
   private getMockNotifications(): Occurrence[] {
     return [
       {
         id: 249,
-        scheduled_at: '2021-04-10T16:06:40.000Z',
+        scheduled_at: DateTime.now()
+          .plus({ minute: 1 })
+          .set({ second: 0 })
+          .toISO(),
         started_at: null,
         ended_at: null,
         skipped_at: null,
         habit: {
           id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
+          title: 'stretching',
+          duration: 0.5,
+          is_skippable: true,
         },
       },
       {
         id: 250,
-        scheduled_at: '2021-04-11T16:06:40.000Z',
+        scheduled_at: DateTime.now()
+          .plus({ minute: 2 })
+          .set({ second: 0 })
+          .toISO(),
         started_at: null,
         ended_at: null,
         skipped_at: null,
         habit: {
           id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 251,
-        scheduled_at: '2021-04-12T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 252,
-        scheduled_at: '2021-04-13T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 253,
-        scheduled_at: '2021-04-14T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 254,
-        scheduled_at: '2021-04-15T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
-          is_skippable: false,
-        },
-      },
-      {
-        id: 255,
-        scheduled_at: '2021-04-16T16:06:40.000Z',
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'testing',
-          duration: 5,
+          title: 'focusing',
+          duration: 0.5,
           is_skippable: false,
         },
       },
@@ -204,6 +224,11 @@ export default class Home extends Vue {
 
 <style lang="scss" scoped>
 .welcome-screen {
-  @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5;
+  @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5 relative;
+
+  .yaht-logo {
+    @apply absolute top-10 left-1/2 transform -translate-x-1/2 opacity-70 transition-opacity hover:opacity-100;
+    width: 120px;
+  }
 }
 </style>

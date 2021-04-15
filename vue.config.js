@@ -9,13 +9,6 @@ module.exports = {
     electronBuilder: {
       nodeintegration: true,
       mainProcessFile: 'src/main/app.ts',
-      builderOptions: {
-        mac: {
-          extendInfo: {
-            NSUserNotificationAlertStyle: 'alert',
-          },
-        },
-      },
     },
   },
 };
