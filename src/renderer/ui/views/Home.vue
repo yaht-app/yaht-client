@@ -46,14 +46,19 @@
 </template>
 
 <script lang="ts">
+import SERVICE from '@/constants/ServiceIdentifiers';
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
+import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
+import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
+import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer } from 'electron';
+import { AxiosResponse } from 'axios';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -68,6 +73,7 @@ export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
   private occurrenceUseCase: OccurrenceUseCases;
+  private httpService: HttpService;
 
   public isLoggingIn = false;
   public userName = 'sebastian.richner@uzh.ch';
@@ -81,6 +87,13 @@ export default class Home extends Vue {
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
     this.userUseCase = this.$container.get(USE_CASE.USER);
     this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
+    this.httpService = this.$container.get(SERVICE.HTTP);
+  }
+
+  created() {
+    ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
+    ipcRenderer.on('notification-started', this.handleStartedNotification);
+    ipcRenderer.on('notification-ended', this.handleEndedNotification);
   }
 
   async loginClicked(): Promise<void> {
@@ -92,11 +105,77 @@ export default class Home extends Vue {
         this.user.id
       );
       LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
-      ipcRenderer.send('notifications', notifications);
+      ipcRenderer.send('notifications', this.getMockNotifications());
     } catch (e) {
       LOG.error(e);
     }
     this.isLoggingIn = false;
+  }
+
+  async handleSkippedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-skipped for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          skipped_at: notification.skippedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
+  }
+
+  async handleStartedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-started for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          started_at: notification.startedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
+  }
+
+  async handleEndedNotification(
+    event: IpcRendererEvent,
+    notification: BasicNotification
+  ): void {
+    LOG.info(
+      `Received notification-ended for Notification=${notification.title}}`
+    );
+    try {
+      const response: AxiosResponse<
+        GenericResponse<Occurrence[]>
+      > = await this.httpService.put(
+        `/occurrences/${notification.occurrenceId}`,
+        {
+          ended_at: notification.endedAt,
+        }
+      );
+      LOG.debug(response);
+    } catch (e) {
+      LOG.error(e);
+    }
   }
 
   private getMockNotifications(): Occurrence[] {

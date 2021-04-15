@@ -106,6 +106,7 @@ export class NotificationService {
     notification.startedAt = DateTime.now();
     this.userBasicNotifications.push(
       new BasicNotification(
+        notification.occurrenceId,
         'end',
         notification.title,
         `End ${notification.title} now`,
@@ -113,22 +114,25 @@ export class NotificationService {
         'End'
       )
     );
+    this.webContents.send('notification-started', notification);
   }
 
   private handleEndedNotification(notification: BasicNotification) {
     LOG.debug('handleEndedNotification called');
     notification.endedAt = DateTime.now();
+    this.webContents.send('notification-ended', notification);
   }
 
   private handleSkippedNotification(notification: BasicNotification) {
     LOG.debug('handleSkippedOccurrence called');
     notification.skippedAt = DateTime.now();
+    this.webContents.send('notification-skipped', notification);
   }
 
   private createNotificationFromBasicNotification(
     basicNotification: BasicNotification
   ): Notification {
-    LOG.debug(`Created native Notification(${basicNotification.title})`);
+    LOG.info(`Created native Notification(${basicNotification.title})`);
     return new Notification({
       title: basicNotification.title,
       body: basicNotification.message,
