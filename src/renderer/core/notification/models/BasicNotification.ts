@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 
 export class BasicNotification {
+  occurrenceId: number;
   type: 'start' | 'end';
   title: string;
   message: string;
@@ -14,6 +15,7 @@ export class BasicNotification {
   duration?: number;
 
   constructor(
+    occurrenceId: number,
     type: 'start' | 'end',
     title: string,
     message: string,
@@ -22,6 +24,7 @@ export class BasicNotification {
     actions?: any[],
     duration?: number
   ) {
+    this.occurrenceId = occurrenceId;
     this.type = type;
     this.title = title;
     this.message = message;

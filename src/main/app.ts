@@ -96,6 +96,7 @@ function createNotificationsFromOccurrences(occurrences: Occurrence[]) {
       actions.push({ text: 'Skip', type: 'button' });
     }
     return new BasicNotification(
+      o.id,
       'start',
       o.habit.title,
       `Start ${o.habit.title} now`,
