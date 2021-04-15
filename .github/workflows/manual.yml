@@ -5,8 +5,6 @@ on:
 
 env:
   NODE_VERSION: '12.x'
-  AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-  APPLE_ID: ${{ secrets.APPLE_ID }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
@@ -24,7 +22,8 @@ jobs:
         run: |
           yarn install
           yarn build-and-deploy
-
-
+        env:
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
 
     
