@@ -26,6 +26,7 @@ protocol.registerSchemesAsPrivileged([
 
 const system: Bootstrap = new Bootstrap();
 const updater: AppUpdater = new AppUpdater();
+const notificationService = new NotificationService();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -56,6 +57,7 @@ app.on('ready', async () => {
   }
   await system.ready();
   updater.checkForUpdatesAndNotify();
+  notificationService.setWebContents(system.webContents);
 });
 
 // Exit cleanly on request from parent process in development mode.
@@ -73,11 +75,10 @@ if (isDevelopment) {
   }
 }
 
-const notificationService = new NotificationService();
-
 ipcMain.on('logout', () => {
   notificationService.stopService();
 });
+
 ipcMain.on('notifications', (event, newOccurrences) => {
   LOG.log(`Received notifications, length: ${newOccurrences.length}`);
   try {
