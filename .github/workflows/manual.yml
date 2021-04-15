@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies and build
         run: |
           yarn install
-          vue-cli-service electron:build -p always
+          yarn electron:build
 
 
     
