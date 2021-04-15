@@ -1,7 +1,7 @@
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import { CronJob } from 'cron';
-import { Notification } from 'electron';
+import { Notification, WebContents } from 'electron';
 import { LogFunctions } from 'electron-log';
 import { DateTime } from 'luxon';
 
@@ -9,6 +9,7 @@ const LOG: LogFunctions = getLogger('NotificationService');
 
 export class NotificationService {
   private readonly cronJob: CronJob;
+  private webContents!: WebContents;
   private userBasicNotifications: BasicNotification[] = [];
   private shownNotifications: Notification[] = [];
 
@@ -27,6 +28,10 @@ export class NotificationService {
     LOG.debug(
       `Setting BasicNotifications, length=${basicNotifications.length}`
     );
+    if (!this.webContents) {
+      LOG.error(`BasicNotifications was set before setting WebContents!`);
+      return;
+    }
     this.userBasicNotifications = basicNotifications;
     if (basicNotifications.length > 0) {
       this.cronJob.start();
@@ -35,6 +40,10 @@ export class NotificationService {
 
   public stopService(): void {
     this.cronJob.stop();
+  }
+
+  public setWebContents(webContents: WebContents): void {
+    this.webContents = webContents;
   }
 
   private checkAndTriggerNotifications(): void {
