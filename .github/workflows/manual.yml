@@ -1,0 +1,26 @@
+name: Build and Deploy Yaht Client to Dist
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '12.x'
+
+jobs:
+  build-client:
+    name: Build Yaht Client App
+    runs-on: ubuntu-latest
+
+    steps:        
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install dependencies and build
+        run: |
+          yarn install
+          yarn electron:build
+
+
+    
