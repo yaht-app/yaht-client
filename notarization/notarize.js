@@ -8,7 +8,7 @@ const { notarize } = require('electron-notarize');
 
 module.exports = async (context) => {
   const { electronPlatformName, appOutDir } = context;
-  if (electronPlatformName !== 'darwin' || !process.env.APPLEID) {
+  if (electronPlatformName !== 'darwin' || !APPLE_ID) {
     console.warn(
       'Not running notarize. Platform is not macOS or AppleId missing in environment.'
     );
