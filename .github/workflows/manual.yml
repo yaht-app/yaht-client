@@ -25,5 +25,6 @@ jobs:
         env:
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          DEBUG: electron-builder
 
     
