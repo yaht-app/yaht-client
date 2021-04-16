@@ -115,7 +115,7 @@ export default class Home extends Vue {
   async handleSkippedNotification(
     event: IpcRendererEvent,
     notification: BasicNotification
-  ): void {
+  ): Promise<void> {
     LOG.info(
       `Received notification-skipped for Notification=${notification.title}}`
     );
@@ -137,7 +137,7 @@ export default class Home extends Vue {
   async handleStartedNotification(
     event: IpcRendererEvent,
     notification: BasicNotification
-  ): void {
+  ): Promise<void> {
     LOG.info(
       `Received notification-started for Notification=${notification.title}}`
     );
@@ -159,7 +159,7 @@ export default class Home extends Vue {
   async handleEndedNotification(
     event: IpcRendererEvent,
     notification: BasicNotification
-  ): void {
+  ): Promise<void> {
     LOG.info(
       `Received notification-ended for Notification=${notification.title}}`
     );
