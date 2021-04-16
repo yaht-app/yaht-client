@@ -11,13 +11,9 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps",
-    "build-and-deploy": "vue-cli-service electron:build -p always -c.snap.publish=github"
+    "postuninstall": "electron-builder install-app-deps"
   },
-  "main": " dist_electron/bundled/background.js",
-  "build": {
-    "extends": null
-  },
+  "main": "background.js",
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
     "@tailwindcss/forms": "^0.3.2",
