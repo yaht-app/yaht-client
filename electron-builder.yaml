@@ -6,8 +6,6 @@ extraResources:
   from: src/resources/
   to: resources/
 
-extends: null
-
 mac:
   extendInfo:
     NSUserNotificationAlertStyle: alert
