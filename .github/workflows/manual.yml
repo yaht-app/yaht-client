@@ -10,7 +10,7 @@ env:
 jobs:
   build-client:
     name: Build Yaht Client App
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     steps:        
       - uses: actions/checkout@v2
