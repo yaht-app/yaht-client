@@ -22,7 +22,6 @@ jobs:
         run: |
           yarn install
           yarn run electron:build
-          yarn run build-and-deploy
         env:
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
