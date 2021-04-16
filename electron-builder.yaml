@@ -2,10 +2,6 @@ appId: app.yaht.client
 productName: yaht
 copyright: Copyright © 2021 The Yaht Team
 
-files:
-  - dist/**/*
-  - package.json
-
 extraResources:
   from: src/resources/
   to: resources/
