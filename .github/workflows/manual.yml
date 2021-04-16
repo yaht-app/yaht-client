@@ -20,14 +20,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - name: Build and deploy
         run: |
-          ls
           yarn install
-          ls
           yarn run electron:build
-          ls
           yarn run build-and-deploy
-          ls
         env:
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
     
