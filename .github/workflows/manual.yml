@@ -19,10 +19,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Build and deploy
-        run: |
-          yarn install
-          yarn run electron:build
-          yarn run build-and-deploy
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
         env:
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
