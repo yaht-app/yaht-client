@@ -103,7 +103,7 @@ export class NotificationService {
   }
 
   private handleStartedNotification(notification: BasicNotification) {
-    notification.startedAt = DateTime.now();
+    notification.startedAt = DateTime.now().toString();
     this.userBasicNotifications.push(
       new BasicNotification(
         notification.occurrenceId,
@@ -119,13 +119,13 @@ export class NotificationService {
 
   private handleEndedNotification(notification: BasicNotification) {
     LOG.debug('handleEndedNotification called');
-    notification.endedAt = DateTime.now();
+    notification.endedAt = DateTime.now().toString();
     this.webContents.send('notification-ended', notification);
   }
 
   private handleSkippedNotification(notification: BasicNotification) {
     LOG.debug('handleSkippedOccurrence called');
-    notification.skippedAt = DateTime.now();
+    notification.skippedAt = DateTime.now().toString();
     this.webContents.send('notification-skipped', notification);
   }
 

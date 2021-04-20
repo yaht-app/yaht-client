@@ -9,9 +9,9 @@ export class BasicNotification {
   closeButtonText?: string;
   shown = false;
   scheduledAt: DateTime;
-  startedAt?: DateTime;
-  endedAt?: DateTime;
-  skippedAt?: DateTime;
+  startedAt?: string;
+  endedAt?: string;
+  skippedAt?: string;
   duration?: number;
 
   constructor(
