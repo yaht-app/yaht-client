@@ -51,13 +51,10 @@ import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
-import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
-import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { AxiosResponse } from 'axios';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
@@ -120,15 +117,11 @@ export default class Home extends Vue {
       `Received notification-skipped for Notification=${notification.title}}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          skipped_at: notification.skippedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceSkippedAt(
+        this.user.id,
+        notification.occurrenceId,
+        DateTime.fromISO(notification.skippedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
@@ -139,18 +132,14 @@ export default class Home extends Vue {
     notification: BasicNotification
   ): Promise<void> {
     LOG.info(
-      `Received notification-started for Notification=${notification.title}}`
+      `Received notification-started for Notification=${notification.title}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          started_at: notification.startedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceStartedAt(
+        this.user.id,
+        notification.occurrenceId,
+        DateTime.fromISO(notification.startedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
@@ -164,15 +153,11 @@ export default class Home extends Vue {
       `Received notification-ended for Notification=${notification.title}}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          ended_at: notification.endedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceEndedAt(
+        this.user.id,
+        notification.occurrenceId,
+        DateTime.fromISO(notification.endedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
