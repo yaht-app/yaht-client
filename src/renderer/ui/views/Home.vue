@@ -105,7 +105,7 @@ export default class Home extends Vue {
         this.user.id
       );
       LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
-      ipcRenderer.send('notifications', this.getMockNotifications());
+      ipcRenderer.send('notifications', notifications);
     } catch (e) {
       LOG.error(e);
     }
@@ -176,43 +176,6 @@ export default class Home extends Vue {
     } catch (e) {
       LOG.error(e);
     }
-  }
-
-  private getMockNotifications(): Occurrence[] {
-    return [
-      {
-        id: 249,
-        scheduled_at: DateTime.now()
-          .plus({ minute: 1 })
-          .set({ second: 0 })
-          .toISO(),
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'stretching',
-          duration: 0.5,
-          is_skippable: true,
-        },
-      },
-      {
-        id: 250,
-        scheduled_at: DateTime.now()
-          .plus({ minute: 2 })
-          .set({ second: 0 })
-          .toISO(),
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'focusing',
-          duration: 0.5,
-          is_skippable: false,
-        },
-      },
-    ];
   }
 
   logoutClicked(): void {
