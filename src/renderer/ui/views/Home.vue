@@ -90,7 +90,7 @@ export default class Home extends Vue {
     this.httpService = this.$container.get(SERVICE.HTTP);
   }
 
-  created() {
+  created(): void {
     ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
     ipcRenderer.on('notification-started', this.handleStartedNotification);
     ipcRenderer.on('notification-ended', this.handleEndedNotification);
