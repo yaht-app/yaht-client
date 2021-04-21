@@ -51,11 +51,12 @@ import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
+import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { ipcRenderer, IpcRendererEvent, NotificationAction } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -98,9 +99,16 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
+      const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
+      const notifications = this.createNotificationsFromOccurrences(
+        occurrences
+      );
+      const reflectioNotifications = this.createNotificationsFromReflections(
+        this.user
+      );
+
       LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
       ipcRenderer.send('notifications', notifications);
     } catch (e) {
@@ -166,6 +174,31 @@ export default class Home extends Vue {
   logoutClicked(): void {
     ipcRenderer.send('logout');
     this.authUseCase.logout();
+  }
+
+  createNotificationsFromReflections(user: UserAuthDTO): void {
+    let notifications = [];
+  }
+
+  createNotificationsFromOccurrences(
+    occurrences: Occurrence[]
+  ): BasicNotification[] {
+    return occurrences.map((o) => {
+      const actions: NotificationAction[] = [];
+      if (o.habit.is_skippable) {
+        actions.push({ text: 'Skip', type: 'button' });
+      }
+      return new BasicNotification(
+        o.id,
+        'start',
+        o.habit.title,
+        `Start ${o.habit.title} now`,
+        o.scheduled_at,
+        `Start ${o.habit.title}`,
+        actions,
+        o.habit.duration
+      );
+    });
   }
 }
 </script>

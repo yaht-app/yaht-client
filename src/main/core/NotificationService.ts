@@ -110,7 +110,7 @@ export class NotificationService {
         'end',
         notification.title,
         `End ${notification.title} now`,
-        DateTime.now().plus({ minutes: notification.duration }),
+        DateTime.now().plus({ minutes: notification.duration }).toString(),
         'End'
       )
     );
@@ -152,7 +152,9 @@ export class NotificationService {
     return this.userBasicNotifications.filter((basicNotification) => {
       return (
         !basicNotification.shown &&
-        this.isNotificationWithinTime(basicNotification.scheduledAt)
+        this.isNotificationWithinTime(
+          DateTime.fromISO(basicNotification.scheduledAt)
+        )
       );
     });
   }
@@ -161,11 +163,14 @@ export class NotificationService {
     let nextNotification: any = null;
     this.userBasicNotifications.forEach((n) => {
       const now = DateTime.now();
-      if (n.scheduledAt >= now) {
+      if (DateTime.fromISO(n.scheduledAt) >= now) {
         if (!nextNotification) {
           nextNotification = n;
         }
-        if (n.scheduledAt <= nextNotification.scheduledAt) {
+        if (
+          DateTime.fromISO(n.scheduledAt) <=
+          DateTime.fromISO(nextNotification.scheduledAt)
+        ) {
           nextNotification = n;
         }
       }

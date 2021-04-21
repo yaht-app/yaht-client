@@ -3,17 +3,8 @@
 import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
 import { NotificationService } from '@/main/core/NotificationService';
-import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
-import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { getLogger } from '@/shared/logger';
-import {
-  app,
-  protocol,
-  BrowserWindow,
-  ipcMain,
-  NotificationAction,
-} from 'electron';
-import { DateTime } from 'luxon';
+import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -79,31 +70,11 @@ ipcMain.on('logout', () => {
   notificationService.stopService();
 });
 
-ipcMain.on('notifications', (event, newOccurrences) => {
-  LOG.log(`Received notifications, length: ${newOccurrences.length}`);
+ipcMain.on('notifications', (event, notifications) => {
+  LOG.log(`Received notifications, length: ${notifications.length}`);
   try {
-    const notifications = createNotificationsFromOccurrences(newOccurrences);
     notificationService.setBasicNotifications(notifications);
   } catch (e) {
     LOG.error(e);
   }
 });
-
-function createNotificationsFromOccurrences(occurrences: Occurrence[]) {
-  return occurrences.map((o) => {
-    const actions: NotificationAction[] = [];
-    if (o.habit.is_skippable) {
-      actions.push({ text: 'Skip', type: 'button' });
-    }
-    return new BasicNotification(
-      o.id,
-      'start',
-      o.habit.title,
-      `Start ${o.habit.title} now`,
-      DateTime.fromISO(o.scheduled_at),
-      `Start ${o.habit.title}`,
-      actions,
-      o.habit.duration
-    );
-  });
-}

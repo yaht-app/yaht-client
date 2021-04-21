@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon';
-
 export class BasicNotification {
   occurrenceId: number;
   type: 'start' | 'end';
@@ -8,7 +6,7 @@ export class BasicNotification {
   actions?: any[];
   closeButtonText?: string;
   shown = false;
-  scheduledAt: DateTime;
+  scheduledAt: string;
   startedAt?: string;
   endedAt?: string;
   skippedAt?: string;
@@ -19,7 +17,7 @@ export class BasicNotification {
     type: 'start' | 'end',
     title: string,
     message: string,
-    scheduledAt: DateTime,
+    scheduledAt: string,
     closeButtonText: string,
     actions?: any[],
     duration?: number
