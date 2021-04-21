@@ -1,7 +1,7 @@
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import { CronJob } from 'cron';
-import { Notification, WebContents } from 'electron';
+import { Notification, shell, WebContents } from 'electron';
 import { LogFunctions } from 'electron-log';
 import { DateTime } from 'luxon';
 
@@ -100,18 +100,24 @@ export class NotificationService {
         this.handleSkippedNotification(basicNotification);
       });
     }
+    if (basicNotification.type === 'reflection') {
+      nativeNotification.on('click', () => {
+        shell.openExternal('https://yaht.app/reflections/new');
+        LOG.log('Reflection notification was clicked...');
+      });
+    }
   }
 
   private handleStartedNotification(notification: BasicNotification) {
     notification.startedAt = DateTime.now().toString();
     this.userBasicNotifications.push(
       new BasicNotification(
-        notification.occurrenceId,
+        'End',
         'end',
         notification.title,
         `End ${notification.title} now`,
         DateTime.now().plus({ minutes: notification.duration }).toString(),
-        'End'
+        notification.occurrenceId
       )
     );
     this.webContents.send('notification-started', notification);

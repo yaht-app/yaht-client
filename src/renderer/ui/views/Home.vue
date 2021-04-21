@@ -102,15 +102,21 @@ export default class Home extends Vue {
       const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
-      const notifications = this.createNotificationsFromOccurrences(
+      const occurrenceNotifications = this.createNotificationsFromOccurrences(
         occurrences
       );
-      const reflectioNotifications = this.createNotificationsFromReflections(
+      const reflectionNotifications = this.createNotificationsFromReflections(
         this.user
       );
 
-      LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
-      ipcRenderer.send('notifications', notifications);
+      const allNotifications = occurrenceNotifications.concat(
+        reflectionNotifications
+      );
+
+      LOG.debug(
+        `Notifications loaded in Home, length=${allNotifications.length}`
+      );
+      ipcRenderer.send('notifications', allNotifications);
     } catch (e) {
       LOG.error(e);
     }
@@ -127,7 +133,7 @@ export default class Home extends Vue {
     try {
       await this.occurrenceUseCase.updateOccurrenceSkippedAt(
         this.user.id,
-        notification.occurrenceId,
+        notification.occurrenceId!,
         DateTime.fromISO(notification.skippedAt!).toString()
       );
     } catch (e) {
@@ -145,7 +151,7 @@ export default class Home extends Vue {
     try {
       await this.occurrenceUseCase.updateOccurrenceStartedAt(
         this.user.id,
-        notification.occurrenceId,
+        notification.occurrenceId!,
         DateTime.fromISO(notification.startedAt!).toString()
       );
     } catch (e) {
@@ -163,7 +169,7 @@ export default class Home extends Vue {
     try {
       await this.occurrenceUseCase.updateOccurrenceEndedAt(
         this.user.id,
-        notification.occurrenceId,
+        notification.occurrenceId!,
         DateTime.fromISO(notification.endedAt!).toString()
       );
     } catch (e) {
@@ -176,8 +182,67 @@ export default class Home extends Vue {
     this.authUseCase.logout();
   }
 
-  createNotificationsFromReflections(user: UserAuthDTO): void {
-    let notifications = [];
+  createNotificationsFromReflections(user: UserAuthDTO): BasicNotification[] {
+    let notifications: BasicNotification[] = [];
+    if (user.reflection_at.length > 0 && user.reflection_on.length > 0) {
+      notifications = this.createNotificationsFromReflectionData(
+        user.reflection_at,
+        user.reflection_on
+      );
+    }
+    return notifications;
+  }
+
+  createNotificationsFromReflectionData(
+    atStrings: string[],
+    onStrings: string[]
+  ): BasicNotification[] {
+    let notifications: BasicNotification[] = [];
+    onStrings.forEach((weekday) => {
+      atStrings.forEach((time) => {
+        notifications.push(
+          this.createReflectionNotificationFromDateTime(
+            this.getDateTimeFromWeekdayAndHour(weekday, time)
+          )
+        );
+      });
+    });
+    LOG.error(notifications);
+    return notifications;
+  }
+
+  getDateTimeFromWeekdayAndHour(weekday: string, time: string): DateTime {
+    const weekdayMap = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+      sunday: 7,
+    };
+    const [hour, minute] = time.split(':');
+
+    return DateTime.now().set({
+      weekday: (weekdayMap as any)[weekday],
+      hour: parseInt(hour),
+      minute: parseInt(minute),
+    });
+  }
+
+  createReflectionNotificationFromDateTime(
+    dateTime: DateTime
+  ): BasicNotification {
+    return new BasicNotification(
+      `Skip`,
+      'reflection',
+      'Reflection',
+      `Add your reflection`,
+      dateTime.toString(),
+      undefined,
+      [],
+      0
+    );
   }
 
   createNotificationsFromOccurrences(
@@ -189,12 +254,12 @@ export default class Home extends Vue {
         actions.push({ text: 'Skip', type: 'button' });
       }
       return new BasicNotification(
-        o.id,
+        `Start ${o.habit.title}`,
         'start',
         o.habit.title,
         `Start ${o.habit.title} now`,
         o.scheduled_at,
-        `Start ${o.habit.title}`,
+        o.id,
         actions,
         o.habit.duration
       );
