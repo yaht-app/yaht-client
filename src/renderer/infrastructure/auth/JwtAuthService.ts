@@ -1,39 +1,42 @@
-import SERVICE from '@/constants/ServiceIdentifiers';
 import { AuthService } from '@/renderer/core/auth/AuthService';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
-import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
-import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { inject, injectable } from 'inversify';
+import axios, { AxiosInstance } from 'axios';
+import { ipcRenderer } from 'electron';
+import { injectable } from 'inversify';
 
 const LOG = getLogger('JwtAuthService');
+const API_URL = process.env.VUE_APP_API_URL;
 
 @injectable()
 export class JwtAuthService implements AuthService {
-  constructor(
-    @inject(SERVICE.HTTP)
-    private readonly httpService: HttpService
-  ) {}
-
+  private httpAuthClient: AxiosInstance;
   private user: UserAuthDTO | undefined;
 
+  constructor() {
+    this.httpAuthClient = axios.create({
+      baseURL: API_URL,
+    });
+  }
   async login(login: string, password: string): Promise<UserAuthDTO> {
-    const response = await this.httpService.post<GenericResponse<UserAuthDTO>>(
-      '/auth',
-      {
-        user: {
-          login,
-          password,
-        },
-      }
-    );
+    const response = await this.httpAuthClient.post(`${API_URL}/auth`, {
+      user: {
+        login,
+        password,
+      },
+    });
 
     this.user = response.data.data as UserAuthDTO;
+    ipcRenderer.send('setGlobalUser', this.user);
     return this.user;
   }
 
   logout(): Promise<unknown> {
     LOG.debug('Logging out...');
-    return this.httpService.post('/auth/logout');
+    return this.httpAuthClient.post('/auth/logout');
+  }
+
+  getToken(): string {
+    return this.user?.token || global.user.token || '';
   }
 }

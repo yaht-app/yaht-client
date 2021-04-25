@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 'use strict';
 
 import AppUpdater from '@/main/AppUpdater';
@@ -72,11 +73,19 @@ ipcMain.on('logout', () => {
   notificationService.stopService();
 });
 
-ipcMain.on('notifications', (event, notifications) => {
+ipcMain.on('notifications', async (event, notifications) => {
   LOG.log(`Received notifications, length: ${notifications.length}`);
   try {
     notificationService.setBasicNotifications(notifications);
   } catch (e) {
     LOG.error(e);
   }
+  await reflectionWindowService.createWindow();
+  reflectionWindowService.showWindow();
+});
+
+ipcMain.on('setGlobalUser', (event, user) => {
+  LOG.debug(`Received user from renderer`);
+  // @ts-ignore
+  global.user = user;
 });
