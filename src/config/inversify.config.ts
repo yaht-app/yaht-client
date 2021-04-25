@@ -20,7 +20,7 @@ container.bind<HttpService>(SERVICE.HTTP).to(HttpService);
 container.bind<AuthService>(SERVICE.AUTH).to(JwtAuthService);
 container.bind<UserService>(SERVICE.USER).to(HttpUserService);
 container.bind<OccurrenceService>(SERVICE.OCCURRENCE).to(HttpOccurrenceService);
-container.bind<ReflectionService>(SERVICE.OCCURRENCE).to(HttpReflectionService);
+container.bind<ReflectionService>(SERVICE.REFLECTION).to(HttpReflectionService);
 
 container.bind<AuthUseCases>(USE_CASE.AUTH).to(AuthUseCases);
 container.bind<UserUseCases>(USE_CASE.USER).to(UserUseCases);
