@@ -3,6 +3,7 @@
 import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
 import { NotificationService } from '@/main/core/NotificationService';
+import { ReflectionWindowService } from '@/main/core/ReflectionWindowService';
 import { getLogger } from '@/shared/logger';
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -18,6 +19,7 @@ protocol.registerSchemesAsPrivileged([
 const system: Bootstrap = new Bootstrap();
 const updater: AppUpdater = new AppUpdater();
 const notificationService = new NotificationService();
+const reflectionWindowService = new ReflectionWindowService(app);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
