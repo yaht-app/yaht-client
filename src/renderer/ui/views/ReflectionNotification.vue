@@ -1,6 +1,7 @@
 <template>
   <div class="reflection-notification">
     <h1>Reflection Notification</h1>
+    <h2></h2>
   </div>
 </template>
 
@@ -8,7 +9,7 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO';
-import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
+import { ReflectionUseCases } from '@/renderer/core/reflection/ReflectionUseCases';
 import { getLogger } from '@/shared/logger';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
@@ -22,7 +23,7 @@ const auth = namespace('authStore');
 })
 export default class ReflectionNotification extends Vue {
   private authUseCase: AuthUseCases;
-  private occurrenceUseCase: OccurrenceUseCases;
+  private reflectionUseCase: ReflectionUseCases;
   private isLoading = true;
 
   @auth.State isLoggedIn!: boolean;
@@ -31,37 +32,16 @@ export default class ReflectionNotification extends Vue {
   constructor() {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
-    this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
+    this.reflectionUseCase = this.$container.get(USE_CASE.REFLECTION);
   }
 
-  async created() {
-    this.authUseCase.setAuthFromUserAuthDTO(await remote.getGlobal('user'));
+  async created(): void {
+    await this.authUseCase.setAuthFromUserAuthDTO(
+      await remote.getGlobal('user')
+    );
     this.isLoading = true;
-    await this.createMockReflectionData();
+    await this.reflectionUseCase.getMockReflectionData();
     this.isLoading = false;
-  }
-
-  createMockReflectionData() {
-    setTimeout(() => {
-      return {
-        title: 'It’s time for your weekly reflection.',
-        openTextTitle:
-          'Reflecting will help you to identify which of your habits are helping you towards achieving your goals.',
-        goalQuestion:
-          'Do you think that the following habits have worked towards achieving your goal to My awesome goal!?',
-        habits: [
-          {
-            title: 'awesome habit by sebastian',
-          },
-          {
-            title: 'focusing',
-          },
-          {
-            title: 'workday scheduling',
-          },
-        ],
-      };
-    }, 1500);
   }
 }
 </script>
