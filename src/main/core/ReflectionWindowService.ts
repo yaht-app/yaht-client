@@ -52,7 +52,8 @@ export class ReflectionWindowService {
 
   public async showWindow(): Promise<void> {
     if (this.window) {
-      return this.window.show();
+      await this.window.setVisibleOnAllWorkspaces(true);
+      await this.window.show();
     }
   }
 }
