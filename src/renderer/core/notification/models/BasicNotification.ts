@@ -1,35 +1,33 @@
-import { DateTime } from 'luxon';
-
 export class BasicNotification {
-  occurrenceId: number;
-  type: 'start' | 'end';
+  type: 'start' | 'end' | 'reflection';
   title: string;
   message: string;
-  actions?: any[];
   closeButtonText?: string;
   shown = false;
-  scheduledAt: DateTime;
-  startedAt?: DateTime;
-  endedAt?: DateTime;
-  skippedAt?: DateTime;
+  scheduledAt: string;
+  actions?: any[];
+  occurrenceId?: number;
+  startedAt?: string;
+  endedAt?: string;
+  skippedAt?: string;
   duration?: number;
 
   constructor(
-    occurrenceId: number,
-    type: 'start' | 'end',
+    closeButtonText: string,
+    type: 'start' | 'end' | 'reflection',
     title: string,
     message: string,
-    scheduledAt: DateTime,
-    closeButtonText: string,
+    scheduledAt: string,
+    occurrenceId?: number,
     actions?: any[],
     duration?: number
   ) {
-    this.occurrenceId = occurrenceId;
     this.type = type;
     this.title = title;
     this.message = message;
     this.scheduledAt = scheduledAt;
     this.closeButtonText = closeButtonText;
+    this.occurrenceId = occurrenceId;
     this.actions = actions;
     this.duration = duration;
   }

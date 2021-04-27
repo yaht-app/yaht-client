@@ -1,7 +1,7 @@
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import { CronJob } from 'cron';
-import { Notification, WebContents } from 'electron';
+import { Notification, shell, WebContents } from 'electron';
 import { LogFunctions } from 'electron-log';
 import { DateTime } from 'luxon';
 
@@ -100,18 +100,24 @@ export class NotificationService {
         this.handleSkippedNotification(basicNotification);
       });
     }
+    if (basicNotification.type === 'reflection') {
+      nativeNotification.on('click', () => {
+        shell.openExternal('https://yaht.app/reflections/new');
+        LOG.log('Reflection notification was clicked...');
+      });
+    }
   }
 
   private handleStartedNotification(notification: BasicNotification) {
-    notification.startedAt = DateTime.now();
+    notification.startedAt = DateTime.now().toString();
     this.userBasicNotifications.push(
       new BasicNotification(
-        notification.occurrenceId,
+        'End',
         'end',
         notification.title,
         `End ${notification.title} now`,
-        DateTime.now().plus({ minutes: notification.duration }),
-        'End'
+        DateTime.now().plus({ minutes: notification.duration }).toString(),
+        notification.occurrenceId
       )
     );
     this.webContents.send('notification-started', notification);
@@ -119,13 +125,13 @@ export class NotificationService {
 
   private handleEndedNotification(notification: BasicNotification) {
     LOG.debug('handleEndedNotification called');
-    notification.endedAt = DateTime.now();
+    notification.endedAt = DateTime.now().toString();
     this.webContents.send('notification-ended', notification);
   }
 
   private handleSkippedNotification(notification: BasicNotification) {
     LOG.debug('handleSkippedOccurrence called');
-    notification.skippedAt = DateTime.now();
+    notification.skippedAt = DateTime.now().toString();
     this.webContents.send('notification-skipped', notification);
   }
 
@@ -152,7 +158,9 @@ export class NotificationService {
     return this.userBasicNotifications.filter((basicNotification) => {
       return (
         !basicNotification.shown &&
-        this.isNotificationWithinTime(basicNotification.scheduledAt)
+        this.isNotificationWithinTime(
+          DateTime.fromISO(basicNotification.scheduledAt)
+        )
       );
     });
   }
@@ -161,11 +169,14 @@ export class NotificationService {
     let nextNotification: any = null;
     this.userBasicNotifications.forEach((n) => {
       const now = DateTime.now();
-      if (n.scheduledAt >= now) {
+      if (DateTime.fromISO(n.scheduledAt) >= now) {
         if (!nextNotification) {
           nextNotification = n;
         }
-        if (n.scheduledAt <= nextNotification.scheduledAt) {
+        if (
+          DateTime.fromISO(n.scheduledAt) <=
+          DateTime.fromISO(nextNotification.scheduledAt)
+        ) {
           nextNotification = n;
         }
       }

@@ -1,6 +1,8 @@
 import store from '@/renderer/ui/store';
+import SERVICE from '@/constants/ServiceIdentifiers';
+import { AuthService } from '@/renderer/core/auth/AuthService';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 const API_URL = process.env.VUE_APP_API_URL;
 
@@ -8,14 +10,17 @@ const API_URL = process.env.VUE_APP_API_URL;
 export class HttpService {
   private httpClient: AxiosInstance;
 
-  constructor() {
+  constructor(
+    @inject(SERVICE.AUTH)
+    private readonly authService: AuthService
+  ) {
     this.httpClient = axios.create({
       baseURL: API_URL,
     });
 
     this.httpClient.interceptors.request.use((config) => {
       const newConfig = config;
-      const token = store.state.authStore.token;
+      const token = store.state.authStore.token || authService.getToken();
       newConfig.headers.Authorization = token ? `Bearer ${token}` : '';
 
       return newConfig;

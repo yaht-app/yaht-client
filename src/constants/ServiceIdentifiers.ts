@@ -3,6 +3,7 @@ const SERVICE = {
   HTTP: Symbol('HttpService'),
   USER: Symbol('UserService'),
   OCCURRENCE: Symbol('OccurrenceService'),
+  REFLECTION: Symbol('ReflectionService'),
 };
 
 export default SERVICE;

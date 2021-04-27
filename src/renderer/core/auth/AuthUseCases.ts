@@ -26,4 +26,14 @@ export class AuthUseCases {
     LOG.debug('logout useCase');
     await store.dispatch('authStore/logout');
   }
+
+  async setAuthFromUserAuthDTO(user: UserAuthDTO) {
+    if (user) {
+      store.commit('authStore/setUser', user);
+      store.commit('authStore/setIsLoggedIn', true);
+      store.commit('authStore/setToken', user.token);
+    } else {
+      await store.dispatch('authStore/logout');
+    }
+  }
 }

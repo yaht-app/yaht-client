@@ -54,11 +54,9 @@ import { BasicNotification } from '@/renderer/core/notification/models/BasicNoti
 import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
-import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { AxiosResponse } from 'axios';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { ipcRenderer, IpcRendererEvent, NotificationAction } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -90,7 +88,7 @@ export default class Home extends Vue {
     this.httpService = this.$container.get(SERVICE.HTTP);
   }
 
-  created() {
+  created(): void {
     ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
     ipcRenderer.on('notification-started', this.handleStartedNotification);
     ipcRenderer.on('notification-ended', this.handleEndedNotification);
@@ -101,11 +99,24 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      const notifications = await this.occurrenceUseCase.getOccurrencesForUser(
+      const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
-      LOG.debug(`Notifications loaded in Home, length=${notifications.length}`);
-      ipcRenderer.send('notifications', this.getMockNotifications());
+      const occurrenceNotifications = this.createNotificationsFromOccurrences(
+        occurrences
+      );
+      const reflectionNotifications = this.createNotificationsFromReflections(
+        this.user
+      );
+
+      const allNotifications = occurrenceNotifications.concat(
+        reflectionNotifications
+      );
+
+      LOG.debug(
+        `Notifications loaded in Home, length=${allNotifications.length}`
+      );
+      ipcRenderer.send('notifications', allNotifications);
     } catch (e) {
       LOG.error(e);
     }
@@ -120,15 +131,11 @@ export default class Home extends Vue {
       `Received notification-skipped for Notification=${notification.title}}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          skipped_at: notification.skippedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceSkippedAt(
+        this.user.id,
+        notification.occurrenceId!,
+        DateTime.fromISO(notification.skippedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
@@ -139,18 +146,14 @@ export default class Home extends Vue {
     notification: BasicNotification
   ): Promise<void> {
     LOG.info(
-      `Received notification-started for Notification=${notification.title}}`
+      `Received notification-started for Notification=${notification.title}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          started_at: notification.startedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceStartedAt(
+        this.user.id,
+        notification.occurrenceId!,
+        DateTime.fromISO(notification.startedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
@@ -164,60 +167,104 @@ export default class Home extends Vue {
       `Received notification-ended for Notification=${notification.title}}`
     );
     try {
-      const response: AxiosResponse<
-        GenericResponse<Occurrence[]>
-      > = await this.httpService.put(
-        `/occurrences/${notification.occurrenceId}`,
-        {
-          ended_at: notification.endedAt,
-        }
+      await this.occurrenceUseCase.updateOccurrenceEndedAt(
+        this.user.id,
+        notification.occurrenceId!,
+        DateTime.fromISO(notification.endedAt!).toString()
       );
-      LOG.debug(response);
     } catch (e) {
       LOG.error(e);
     }
   }
 
-  private getMockNotifications(): Occurrence[] {
-    return [
-      {
-        id: 249,
-        scheduled_at: DateTime.now()
-          .plus({ minute: 1 })
-          .set({ second: 0 })
-          .toISO(),
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'stretching',
-          duration: 0.5,
-          is_skippable: true,
-        },
-      },
-      {
-        id: 250,
-        scheduled_at: DateTime.now()
-          .plus({ minute: 2 })
-          .set({ second: 0 })
-          .toISO(),
-        started_at: null,
-        ended_at: null,
-        skipped_at: null,
-        habit: {
-          id: 4,
-          title: 'focusing',
-          duration: 0.5,
-          is_skippable: false,
-        },
-      },
-    ];
-  }
-
   logoutClicked(): void {
     ipcRenderer.send('logout');
     this.authUseCase.logout();
+  }
+
+  createNotificationsFromReflections(user: UserAuthDTO): BasicNotification[] {
+    let notifications: BasicNotification[] = [];
+    if (user.reflection_at.length > 0 && user.reflection_on.length > 0) {
+      notifications = this.createNotificationsFromReflectionData(
+        user.reflection_at,
+        user.reflection_on
+      );
+    }
+    return notifications;
+  }
+
+  createNotificationsFromReflectionData(
+    atStrings: string[],
+    onStrings: string[]
+  ): BasicNotification[] {
+    let notifications: BasicNotification[] = [];
+    onStrings.forEach((weekday) => {
+      atStrings.forEach((time) => {
+        notifications.push(
+          this.createReflectionNotificationFromDateTime(
+            this.getDateTimeFromWeekdayAndHour(weekday, time)
+          )
+        );
+      });
+    });
+    LOG.error(notifications);
+    return notifications;
+  }
+
+  getDateTimeFromWeekdayAndHour(weekday: string, time: string): DateTime {
+    const weekdayMap = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+      sunday: 7,
+    };
+    const [hour, minute] = time.split(':');
+
+    return DateTime.now().set({
+      weekday: (weekdayMap as any)[weekday],
+      hour: parseInt(hour),
+      minute: parseInt(minute),
+      second: 0,
+    });
+  }
+
+  createReflectionNotificationFromDateTime(
+    dateTime: DateTime
+  ): BasicNotification {
+    return new BasicNotification(
+      `Skip`,
+      'reflection',
+      'Reflection',
+      `Add your reflection`,
+      dateTime.toString(),
+      undefined,
+      [],
+      0
+    );
+  }
+
+  createNotificationsFromOccurrences(
+    occurrences: Occurrence[]
+  ): BasicNotification[] {
+    return occurrences.map((o) => {
+      const actions: NotificationAction[] = [];
+      if (o.habit.is_skippable) {
+        actions.push({ text: 'Skip', type: 'button' });
+      }
+      return new BasicNotification(
+        `Start ${o.habit.title}`,
+        'start',
+        o.habit.title,
+        `Start ${o.habit.title} now`,
+        o.scheduled_at,
+        o.id,
+        actions,
+        o.habit.duration
+      );
+    });
   }
 }
 </script>
