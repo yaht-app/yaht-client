@@ -1,4 +1,8 @@
+import { ReflectionHabit } from '@/renderer/core/reflection/models/ReflectionHabit';
+
 export interface Reflection {
   title: string;
-  habits: any;
+  openTextTitle: string;
+  goalQuestion: string;
+  habits: ReflectionHabit[];
 }

@@ -14,7 +14,27 @@ export class ReflectionUseCases {
     return await this.reflectionService.getReflectionDataByUserId(userId);
   }
 
-  async getMockReflectionData(): Promise<void> {
-    // todo
+  async getMockReflectionData(): Promise<Reflection> {
+    return {
+      title: 'It’s time for your weekly reflection.',
+      openTextTitle:
+        'Reflecting will help you to identify which of your habits are helping you towards achieving your goals.',
+      goalQuestion:
+        'Do you think that the following habits have worked towards achieving your goal to My awesome goal!?',
+      habits: [
+        {
+          id: '1',
+          title: 'awesome habit by sebastian',
+        },
+        {
+          id: '2',
+          title: 'focusing',
+        },
+        {
+          id: '3',
+          title: 'workday scheduling',
+        },
+      ],
+    };
   }
 }
