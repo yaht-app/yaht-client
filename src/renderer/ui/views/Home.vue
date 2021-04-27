@@ -227,6 +227,7 @@ export default class Home extends Vue {
       weekday: (weekdayMap as any)[weekday],
       hour: parseInt(hour),
       minute: parseInt(minute),
+      second: 0,
     });
   }
 

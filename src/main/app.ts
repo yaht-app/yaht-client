@@ -80,8 +80,8 @@ ipcMain.on('notifications', async (event, notifications) => {
   } catch (e) {
     LOG.error(e);
   }
-  await reflectionWindowService.createWindow();
-  reflectionWindowService.showWindow();
+  // await reflectionWindowService.createWindow();
+  // reflectionWindowService.showWindow();
 });
 
 ipcMain.on('setGlobalUser', (event, user) => {
