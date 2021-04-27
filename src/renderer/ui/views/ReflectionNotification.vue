@@ -35,7 +35,7 @@ export default class ReflectionNotification extends Vue {
     this.reflectionUseCase = this.$container.get(USE_CASE.REFLECTION);
   }
 
-  async created(): void {
+  async created(): Promise<void> {
     await this.authUseCase.setAuthFromUserAuthDTO(
       await remote.getGlobal('user')
     );
