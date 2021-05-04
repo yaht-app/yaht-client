@@ -58,7 +58,6 @@ export class NotificationUseCases {
         );
       });
     });
-    LOG.error(notifications);
     return notifications;
   }
 
