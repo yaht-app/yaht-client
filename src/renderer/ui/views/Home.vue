@@ -228,6 +228,7 @@ export default class Home extends Vue {
       hour: parseInt(hour),
       minute: parseInt(minute),
       second: 0,
+      millisecond: 0,
     });
   }
 
