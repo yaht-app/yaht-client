@@ -1,6 +1,7 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthService } from '@/renderer/core/auth/AuthService';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
+import { NotificationUseCases } from '@/renderer/core/notification/NotificationUseCases';
 import { OccurrenceService } from '@/renderer/core/occurrence/OccurrenceService';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { ReflectionService } from '@/renderer/core/reflection/ReflectionService';
@@ -26,5 +27,8 @@ container.bind<AuthUseCases>(USE_CASE.AUTH).to(AuthUseCases);
 container.bind<UserUseCases>(USE_CASE.USER).to(UserUseCases);
 container.bind<OccurrenceUseCases>(USE_CASE.OCCURRENCE).to(OccurrenceUseCases);
 container.bind<ReflectionUseCases>(USE_CASE.REFLECTION).to(ReflectionUseCases);
+container
+  .bind<NotificationUseCases>(USE_CASE.NOTIFICATION)
+  .to(NotificationUseCases);
 
 export default container;

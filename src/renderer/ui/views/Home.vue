@@ -51,12 +51,12 @@ import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
-import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
+import { NotificationUseCases } from '@/renderer/core/notification/NotificationUseCases';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer, IpcRendererEvent, NotificationAction } from 'electron';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -70,6 +70,7 @@ const auth = namespace('authStore');
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
+  private notificationUseCase: NotificationUseCases;
   private occurrenceUseCase: OccurrenceUseCases;
   private httpService: HttpService;
 
@@ -84,6 +85,7 @@ export default class Home extends Vue {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
     this.userUseCase = this.$container.get(USE_CASE.USER);
+    this.notificationUseCase = this.$container.get(USE_CASE.NOTIFICATION);
     this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
     this.httpService = this.$container.get(SERVICE.HTTP);
   }
@@ -102,10 +104,10 @@ export default class Home extends Vue {
       const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
         this.user.id
       );
-      const occurrenceNotifications = this.createNotificationsFromOccurrences(
+      const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
         occurrences
       );
-      const reflectionNotifications = this.createNotificationsFromReflections(
+      const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
         this.user
       );
 
@@ -180,92 +182,6 @@ export default class Home extends Vue {
   logoutClicked(): void {
     ipcRenderer.send('logout');
     this.authUseCase.logout();
-  }
-
-  createNotificationsFromReflections(user: UserAuthDTO): BasicNotification[] {
-    let notifications: BasicNotification[] = [];
-    if (user.reflection_at.length > 0 && user.reflection_on.length > 0) {
-      notifications = this.createNotificationsFromReflectionData(
-        user.reflection_at,
-        user.reflection_on
-      );
-    }
-    return notifications;
-  }
-
-  createNotificationsFromReflectionData(
-    atStrings: string[],
-    onStrings: string[]
-  ): BasicNotification[] {
-    let notifications: BasicNotification[] = [];
-    onStrings.forEach((weekday) => {
-      atStrings.forEach((time) => {
-        notifications.push(
-          this.createReflectionNotificationFromDateTime(
-            this.getDateTimeFromWeekdayAndHour(weekday, time)
-          )
-        );
-      });
-    });
-    LOG.error(notifications);
-    return notifications;
-  }
-
-  getDateTimeFromWeekdayAndHour(weekday: string, time: string): DateTime {
-    const weekdayMap = {
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-      sunday: 7,
-    };
-    const [hour, minute] = time.split(':');
-
-    return DateTime.now().set({
-      weekday: (weekdayMap as any)[weekday],
-      hour: parseInt(hour),
-      minute: parseInt(minute),
-      second: 0,
-      millisecond: 0,
-    });
-  }
-
-  createReflectionNotificationFromDateTime(
-    dateTime: DateTime
-  ): BasicNotification {
-    return new BasicNotification(
-      `Skip`,
-      'reflection',
-      'Reflection',
-      `Add your reflection`,
-      dateTime.toString(),
-      undefined,
-      [],
-      0
-    );
-  }
-
-  createNotificationsFromOccurrences(
-    occurrences: Occurrence[]
-  ): BasicNotification[] {
-    return occurrences.map((o) => {
-      const actions: NotificationAction[] = [];
-      if (o.habit.is_skippable) {
-        actions.push({ text: 'Skip', type: 'button' });
-      }
-      return new BasicNotification(
-        `Start ${o.habit.title}`,
-        'start',
-        o.habit.title,
-        `Start ${o.habit.title} now`,
-        o.scheduled_at,
-        o.id,
-        actions,
-        o.habit.duration
-      );
-    });
   }
 }
 </script>
