@@ -26,22 +26,42 @@ export class NotificationUseCases {
   public createNotificationsFromOccurrences(
     occurrences: Occurrence[]
   ): BasicNotification[] {
-    return occurrences.map((o) => {
+    const notifications: BasicNotification[] = [];
+    occurrences.forEach((o) => {
       const actions: NotificationAction[] = [];
-      if (o.habit.is_skippable) {
-        actions.push({ text: 'Skip', type: 'button' });
+
+      if (o.started_at && !o.skipped_at && !o.ended_at) {
+        notifications.push(
+          new BasicNotification(
+            'End',
+            'end',
+            o.habit.title,
+            `End ${o.habit.title} now`,
+            DateTime.fromISO(o.started_at)
+              .plus({ minutes: o.habit.duration })
+              .toString(),
+            o.id
+          )
+        );
+      } else if (!o.skipped_at && !o.ended_at) {
+        if (o.habit.is_skippable) {
+          actions.push({ text: 'Skip', type: 'button' });
+        }
+        notifications.push(
+          new BasicNotification(
+            `Start ${o.habit.title}`,
+            'start',
+            o.habit.title,
+            `Start ${o.habit.title} now`,
+            o.scheduled_at,
+            o.id,
+            actions,
+            o.habit.duration
+          )
+        );
       }
-      return new BasicNotification(
-        `Start ${o.habit.title}`,
-        'start',
-        o.habit.title,
-        `Start ${o.habit.title} now`,
-        o.scheduled_at,
-        o.id,
-        actions,
-        o.habit.duration
-      );
     });
+    return notifications;
   }
 
   private createNotificationsFromReflectionData(

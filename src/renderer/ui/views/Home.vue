@@ -74,8 +74,10 @@ export default class Home extends Vue {
   private occurrenceUseCase: OccurrenceUseCases;
   private httpService: HttpService;
 
-  public isLoggingIn = false;
-  public userName = 'sebastian.richner@uzh.ch';
+  private isLoggingIn = false;
+  private isFetchingNotifications = false;
+  private fetchNotificationsInterval: number | undefined;
+  private userName = 'sebastian.richner@uzh.ch';
   public password = '';
 
   @auth.State isLoggedIn!: boolean;
@@ -94,6 +96,7 @@ export default class Home extends Vue {
     ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
     ipcRenderer.on('notification-started', this.handleStartedNotification);
     ipcRenderer.on('notification-ended', this.handleEndedNotification);
+    ipcRenderer.on('fetch-notifications', this.fetchNotifications);
   }
 
   async loginClicked(): Promise<void> {
@@ -101,28 +104,54 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
-        this.user.id
+      await this.fetchNotifications();
+      this.fetchNotificationsInterval = window.setInterval(
+        this.fetchNotifications,
+        5 * 60 * 1000
       );
-      const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
-        occurrences
-      );
-      const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
-        this.user
-      );
-
-      const allNotifications = occurrenceNotifications.concat(
-        reflectionNotifications
-      );
-
-      LOG.debug(
-        `Notifications loaded in Home, length=${allNotifications.length}`
-      );
-      ipcRenderer.send('notifications', allNotifications);
     } catch (e) {
       LOG.error(e);
     }
     this.isLoggingIn = false;
+  }
+
+  async fetchNotifications(): Promise<void> {
+    if (this.isFetchingNotifications) {
+      LOG.info(
+        'fetchNotifications called, already fetching notifications, skipping...'
+      );
+      ipcRenderer.send('fetch-notifications-answer', false);
+      return;
+    }
+    if (!this.isLoggedIn) {
+      LOG.error('fetchNotifications called, user not logged in, skipping...');
+      ipcRenderer.send('fetch-notifications-answer', false);
+      return;
+    }
+    LOG.info('fetchNotifications called, fetching notifications...');
+    this.isFetchingNotifications = true;
+    const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
+      this.user.id
+    );
+    const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
+      occurrences
+    );
+    const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
+      this.user
+    );
+
+    const allNotifications = occurrenceNotifications.concat(
+      reflectionNotifications
+    );
+    this.isFetchingNotifications = false;
+    ipcRenderer.send('fetch-notifications-answer', true);
+
+    if (allNotifications) {
+      LOG.debug(
+        `Notifications loaded in Home, length=${allNotifications.length}`
+      );
+      ipcRenderer.send('notifications', allNotifications);
+    }
   }
 
   async handleSkippedNotification(
@@ -180,6 +209,8 @@ export default class Home extends Vue {
   }
 
   logoutClicked(): void {
+    clearInterval(this.fetchNotificationsInterval);
+    this.isFetchingNotifications = false;
     ipcRenderer.send('logout');
     this.authUseCase.logout();
   }
