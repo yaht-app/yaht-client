@@ -1,6 +1,6 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
-import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample.ts';
-import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService.ts';
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
+import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService';
 import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
@@ -19,9 +19,9 @@ export class HttpExperienceSamplingService
 
   async getExperienceSamplingDataByUserId(
     userId: number
-  ): Promise<ExperienceSample> {
+  ): Promise<ExperienceSample[]> {
     const response: AxiosResponse<
-      GenericResponse<ExperienceSample>
+      GenericResponse<ExperienceSample[]>
     > = await this.httpService.get(`/users/${userId}/samplings`);
 
     LOG.debug(`Got experienceSamplingDataByUserId(${userId})`);
