@@ -48,13 +48,13 @@ import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
-const LOG = getLogger('ReflectionNotification.vue');
+const LOG = getLogger('ExperienceNotification.vue');
 const auth = namespace('authStore');
 
 @Component({
   components: {},
 })
-export default class ReflectionNotification extends Vue {
+export default class ExperienceNotification extends Vue {
   private authUseCase: AuthUseCases;
   private reflectionUseCase: ReflectionUseCases;
   private reflectionData: Reflection | undefined;
