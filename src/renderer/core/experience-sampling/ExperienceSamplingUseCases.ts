@@ -23,7 +23,7 @@ export class ExperienceSamplingUseCases {
     return [
       {
         id: 1234,
-        scheduled_at: DateTime.now().plus({ seconds: 30 }).toString(),
+        scheduled_at: DateTime.now().plus({ seconds: 5 }).toString(),
         prompt: 'How productive did you feel in the last hour?',
         scale_start: 1,
         scale_end: 7,

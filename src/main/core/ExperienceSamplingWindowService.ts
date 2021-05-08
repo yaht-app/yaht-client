@@ -1,3 +1,4 @@
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { BrowserWindow, screen } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
@@ -5,7 +6,7 @@ export class ExperienceSamplingWindowService {
   private window?: Electron.BrowserWindow;
   private webContents?: Electron.WebContents;
 
-  public async createWindow(): Promise<void> {
+  public async createWindow(experienceSample: ExperienceSample): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
     const windowWidth = 450;
@@ -43,6 +44,7 @@ export class ExperienceSamplingWindowService {
       createProtocol('app');
       // Load the index.html when not in development
       await this.window.loadURL('app:// ./index.html#experience-notification');
+      this.webContents!.send('experience-sample', experienceSample);
     }
   }
 

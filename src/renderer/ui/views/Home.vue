@@ -50,6 +50,7 @@ import SERVICE from '@/constants/ServiceIdentifiers';
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
+import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/ExperienceSamplingUseCases';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { NotificationUseCases } from '@/renderer/core/notification/NotificationUseCases';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
@@ -72,6 +73,7 @@ export default class Home extends Vue {
   private userUseCase: UserUseCases;
   private notificationUseCase: NotificationUseCases;
   private occurrenceUseCase: OccurrenceUseCases;
+  private experienceSamplingUseCase: ExperienceSamplingUseCases;
   private httpService: HttpService;
 
   private isLoggingIn = false;
@@ -89,6 +91,9 @@ export default class Home extends Vue {
     this.userUseCase = this.$container.get(USE_CASE.USER);
     this.notificationUseCase = this.$container.get(USE_CASE.NOTIFICATION);
     this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
+    this.experienceSamplingUseCase = this.$container.get(
+      USE_CASE.EXPERIENCE_SAMPLING
+    );
     this.httpService = this.$container.get(SERVICE.HTTP);
   }
 
@@ -139,6 +144,7 @@ export default class Home extends Vue {
     const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
       this.user
     );
+    const experienceSamples = await this.experienceSamplingUseCase.getMockExperienceSamplings();
 
     const allNotifications = occurrenceNotifications.concat(
       reflectionNotifications
@@ -151,6 +157,7 @@ export default class Home extends Vue {
         `Notifications loaded in Home, length=${allNotifications.length}`
       );
       ipcRenderer.send('notifications', allNotifications);
+      ipcRenderer.send('experience-samples', experienceSamples);
     }
   }
 

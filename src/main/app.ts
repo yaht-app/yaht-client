@@ -3,8 +3,8 @@
 
 import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
+import { ExperienceSamplingService } from '@/main/core/ExperienceSamplingService';
 import { NotificationService } from '@/main/core/NotificationService';
-import { ExperienceSamplingWindowService } from '@/main/core/ExperienceSamplingWindowService.ts';
 import { getLogger } from '@/shared/logger';
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -20,7 +20,7 @@ protocol.registerSchemesAsPrivileged([
 const system: Bootstrap = new Bootstrap();
 const updater: AppUpdater = new AppUpdater();
 const notificationService = new NotificationService();
-const experienceSamplingWindowService = new ExperienceSamplingWindowService();
+const experienceSamplingService = new ExperienceSamplingService();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -70,6 +70,7 @@ if (isDevelopment) {
 
 ipcMain.on('logout', () => {
   notificationService.stopService();
+  experienceSamplingService.stopService();
 });
 
 ipcMain.on('notifications', async (event, notifications) => {
@@ -81,7 +82,16 @@ ipcMain.on('notifications', async (event, notifications) => {
   }
 });
 
-ipcMain.on('setGlobalUser', (event, user) => {
+ipcMain.on('experience-samples', async (event, experienceSamples) => {
+  LOG.log(`Received ExperienceSamples, length: ${experienceSamples.length}`);
+  try {
+    experienceSamplingService.setExperienceSamples(experienceSamples);
+  } catch (e) {
+    LOG.error(e);
+  }
+});
+
+ipcMain.on('setGlobalUser', async (event, user) => {
   LOG.debug(`Received user from renderer`);
   // @ts-ignore
   global.user = user;

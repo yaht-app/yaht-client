@@ -153,8 +153,8 @@ export class NotificationService {
 
   private isNotificationWithinTime(dateTime: DateTime): boolean {
     return (
-      dateTime.diffNow('seconds').seconds <= 2 &&
-      dateTime.diffNow('seconds').seconds >= -2
+      dateTime.diffNow('seconds').seconds <= 1 &&
+      dateTime.diffNow('seconds').seconds >= -1
     );
   }
 

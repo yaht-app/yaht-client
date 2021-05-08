@@ -1,36 +1,52 @@
 <template>
   <div class="experience-sampling-notification">
-    <h1>Experience Sampling Notification</h1>
     <template v-if="!isLoading">
-      <h2>{{ experienceSamplingData.title }}</h2>
-      <h3>{{ experienceSamplingData.openTextTitle }}</h3>
-      <textarea />
-      <button class="btn btn-primary w-full">Submit</button>
-      {{ habitAnswers }}
-      <div
-        class="flex flex-col"
-        v-for="habit in experienceSamplingData.habits"
-        :key="habit.title"
-      >
-        <h3>{{ habit.title }}</h3>
-        <div class="habit-rating flex flex-row items-center">
-          <div
-            v-for="(answer, index) in possibleHabitAnswers"
-            :key="habit.title + '-' + answer"
-          >
-            <label>
-              <input
-                :id="index"
-                type="radio"
-                class="mx-2 my-1"
-                v-model="habitAnswers[habit.id]"
-                :name="habit.id"
-                :value="index"
-                :key="habit.title + '-' + answer"
-              />
-              {{ answer }} ( {{ index }} )</label
-            >
+      {{ experienceSamplingConfig }}
+      <div class="max-w-md w-full pointer-events-auto flex">
+        <div class="w-0 flex-1 p-4">
+          <div class="flex items-start">
+            <div class="w-0 flex-1">
+              <p class="font-medium text-gray-900">
+                How productive did you feel in the last hour?
+              </p>
+              <div class="flex flex-row justify-between mt-2 -mx-2">
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">1</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">2</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">3</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">4</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">5</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">6</span>
+                </div>
+                <div class="sample-answer">
+                  <span class="flex mx-auto font-medium">7</span>
+                </div>
+              </div>
+              <div class="flex flex-row text-gray-400 text-sm mt-1">
+                <div class="">not at all</div>
+                <div class="mx-auto">moderately</div>
+                <div class="">very</div>
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="flex border-l border-gray-200">
+          <button
+            @click="onSkipClicked"
+            class="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
+          >
+            Skip
+          </button>
         </div>
       </div>
     </template>
@@ -44,7 +60,7 @@ import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO';
 import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample.ts';
 import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/ExperienceSamplingUseCases';
 import { getLogger } from '@/shared/logger';
-import { remote } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
@@ -57,11 +73,8 @@ const auth = namespace('authStore');
 export default class ExperienceNotification extends Vue {
   private authUseCase: AuthUseCases;
   private experienceSamplingUseCase: ExperienceSamplingUseCases;
-  private experienceSamplingData: ExperienceSample | undefined;
-  private experienceSamplingAnswers: any;
-  private habitAnswers = {};
+  private experienceSamplingConfig: ExperienceSample | undefined;
   private isLoading = true;
-  private currentHabit = 0;
 
   @auth.State isLoggedIn!: boolean;
   @auth.State user!: UserAuthDTO;
@@ -75,30 +88,31 @@ export default class ExperienceNotification extends Vue {
   }
 
   async created(): Promise<void> {
+    ipcRenderer.on('experience-sample', (event, experienceSample) => {
+      this.experienceSamplingConfig = experienceSample;
+    });
+
     await this.authUseCase.setAuthFromUserAuthDTO(
       await remote.getGlobal('user')
     );
     this.isLoading = true;
-    this.experienceSamplingData = await this.experienceSamplingUseCase.getMockExperienceSamplingData();
     this.isLoading = false;
   }
 
-  goToNextHabit(): void {
-    this.currentHabit++;
-  }
-
-  get possibleHabitAnswers() {
-    return ['Not at all', 'Not much', `I don't know`, 'A bit', 'Definitely'];
+  async onSkipClicked(): Promise<void> {
+    const window = await remote.BrowserWindow.getFocusedWindow();
+    LOG.debug('Skip called, closing window...');
+    if (window) {
+      window.close();
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .experience-sampling-notification {
-  padding: 5px 15px;
-
-  .habit-rating {
-    @apply text-sm;
+  .sample-answer {
+    @apply mx-2 flex w-8 h-8 bg-gray-100 text-center items-center text-gray-500 align-middle rounded-md border border-gray-200 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer transition-all;
   }
 }
 </style>
