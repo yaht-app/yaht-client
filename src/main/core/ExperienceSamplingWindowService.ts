@@ -4,11 +4,6 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 export class ExperienceSamplingWindowService {
   private window?: Electron.BrowserWindow;
   private webContents?: Electron.WebContents;
-  readonly application: Electron.App;
-
-  constructor(application: Electron.App) {
-    this.application = application;
-  }
 
   public async createWindow(): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
