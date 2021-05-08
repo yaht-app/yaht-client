@@ -1,15 +1,15 @@
 <template>
-  <div class="reflection-notification">
-    <h1>Reflection Notification</h1>
+  <div class="experience-sampling-notification">
+    <h1>Experience Sampling Notification</h1>
     <template v-if="!isLoading">
-      <h2>{{ reflectionData.title }}</h2>
-      <h3>{{ reflectionData.openTextTitle }}</h3>
+      <h2>{{ experienceSamplingData.title }}</h2>
+      <h3>{{ experienceSamplingData.openTextTitle }}</h3>
       <textarea />
       <button class="btn btn-primary w-full">Submit</button>
       {{ habitAnswers }}
       <div
         class="flex flex-col"
-        v-for="habit in reflectionData.habits"
+        v-for="habit in experienceSamplingData.habits"
         :key="habit.title"
       >
         <h3>{{ habit.title }}</h3>
@@ -41,8 +41,8 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO';
-import { Reflection } from '@/renderer/core/reflection/models/Reflection';
-import { ReflectionUseCases } from '@/renderer/core/reflection/ReflectionUseCases';
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample.ts';
+import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/ExperienceSamplingUseCases';
 import { getLogger } from '@/shared/logger';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
@@ -56,9 +56,9 @@ const auth = namespace('authStore');
 })
 export default class ExperienceNotification extends Vue {
   private authUseCase: AuthUseCases;
-  private reflectionUseCase: ReflectionUseCases;
-  private reflectionData: Reflection | undefined;
-  private reflectionAnswers: any;
+  private experienceSamplingUseCase: ExperienceSamplingUseCases;
+  private experienceSamplingData: ExperienceSample | undefined;
+  private experienceSamplingAnswers: any;
   private habitAnswers = {};
   private isLoading = true;
   private currentHabit = 0;
@@ -69,7 +69,9 @@ export default class ExperienceNotification extends Vue {
   constructor() {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
-    this.reflectionUseCase = this.$container.get(USE_CASE.REFLECTION);
+    this.experienceSamplingUseCase = this.$container.get(
+      USE_CASE.EXPERIENCE_SAMPLING
+    );
   }
 
   async created(): Promise<void> {
@@ -77,7 +79,7 @@ export default class ExperienceNotification extends Vue {
       await remote.getGlobal('user')
     );
     this.isLoading = true;
-    this.reflectionData = await this.reflectionUseCase.getMockReflectionData();
+    this.experienceSamplingData = await this.experienceSamplingUseCase.getMockExperienceSamplingData();
     this.isLoading = false;
   }
 
@@ -92,7 +94,7 @@ export default class ExperienceNotification extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.reflection-notification {
+.experience-sampling-notification {
   padding: 5px 15px;
 
   .habit-rating {

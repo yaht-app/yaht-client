@@ -1,20 +1,24 @@
-import { Reflection } from '@/renderer/core/reflection/models/Reflection';
-import { ReflectionService } from '@/renderer/core/reflection/ReflectionService';
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample.ts';
+import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService.ts';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
 
 @injectable()
-export class ReflectionUseCases {
+export class ExperienceSamplingUseCases {
   constructor(
-    @inject(SERVICE.REFLECTION)
-    private readonly reflectionService: ReflectionService
+    @inject(SERVICE.EXPERIENCE_SAMPLING)
+    private readonly experienceSamplingService: ExperienceSamplingService
   ) {}
 
-  async getReflectionDataForUser(userId: number): Promise<Reflection> {
-    return await this.reflectionService.getReflectionDataByUserId(userId);
+  async getExperienceSamplingDataForUser(
+    userId: number
+  ): Promise<ExperienceSample> {
+    return await this.experienceSamplingService.getExperienceSamplingDataByUserId(
+      userId
+    );
   }
 
-  async getMockReflectionData(): Promise<Reflection> {
+  async getMockExperienceSamplingData(): Promise<ExperienceSample> {
     return {
       title: 'It’s time for your weekly reflection.',
       openTextTitle:

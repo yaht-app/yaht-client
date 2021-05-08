@@ -1,7 +1,7 @@
 import { BrowserWindow, screen } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
-export class ReflectionWindowService {
+export class ExperienceSamplingWindowService {
   private window?: Electron.BrowserWindow;
   private webContents?: Electron.WebContents;
   readonly application: Electron.App;
@@ -39,14 +39,14 @@ export class ReflectionWindowService {
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
       await this.window.loadURL(
-        `${process.env.WEBPACK_DEV_SERVER_URL}/#/reflection-notification`
+        `${process.env.WEBPACK_DEV_SERVER_URL}/#/experience-notification`
       );
       if (!process.env.IS_TEST)
         this.window.webContents.openDevTools({ mode: 'detach' });
     } else {
       createProtocol('app');
       // Load the index.html when not in development
-      await this.window.loadURL('app:// ./index.html#reflection-notification');
+      await this.window.loadURL('app:// ./index.html#experience-notification');
     }
   }
 

@@ -4,7 +4,7 @@
 import AppUpdater from '@/main/AppUpdater';
 import { Bootstrap } from '@/main/Bootstrap';
 import { NotificationService } from '@/main/core/NotificationService';
-import { ReflectionWindowService } from '@/main/core/ReflectionWindowService';
+import { ExperienceSamplingWindowService } from '@/main/core/ExperienceSamplingWindowService.ts';
 import { getLogger } from '@/shared/logger';
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -20,7 +20,9 @@ protocol.registerSchemesAsPrivileged([
 const system: Bootstrap = new Bootstrap();
 const updater: AppUpdater = new AppUpdater();
 const notificationService = new NotificationService();
-const reflectionWindowService = new ReflectionWindowService(app);
+const experienceSamplingWindowService = new ExperienceSamplingWindowService(
+  app
+);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -79,8 +81,8 @@ ipcMain.on('notifications', async (event, notifications) => {
   } catch (e) {
     LOG.error(e);
   }
-  // await reflectionWindowService.createWindow();
-  // reflectionWindowService.showWindow();
+  // await experienceSamplingWindowService.createWindow();
+  // experienceSamplingWindowService.showWindow();
 });
 
 ipcMain.on('setGlobalUser', (event, user) => {
