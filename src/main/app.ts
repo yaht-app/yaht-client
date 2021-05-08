@@ -20,9 +20,7 @@ protocol.registerSchemesAsPrivileged([
 const system: Bootstrap = new Bootstrap();
 const updater: AppUpdater = new AppUpdater();
 const notificationService = new NotificationService();
-const experienceSamplingWindowService = new ExperienceSamplingWindowService(
-  app
-);
+const experienceSamplingWindowService = new ExperienceSamplingWindowService();
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -81,8 +79,6 @@ ipcMain.on('notifications', async (event, notifications) => {
   } catch (e) {
     LOG.error(e);
   }
-  // await experienceSamplingWindowService.createWindow();
-  // experienceSamplingWindowService.showWindow();
 });
 
 ipcMain.on('setGlobalUser', (event, user) => {
