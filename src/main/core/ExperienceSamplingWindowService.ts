@@ -13,16 +13,17 @@ export class ExperienceSamplingWindowService {
   public async createWindow(): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
+    const windowWidth = 450;
+    const windowHeight = 120;
     this.window = await new BrowserWindow({
-      width: 500,
-      height: 250,
-      x: width - 500 - windowPadding,
+      width: windowWidth,
+      height: windowHeight,
+      x: width - windowWidth - windowPadding,
       y: 20 + windowPadding,
       show: false,
-      titleBarStyle: 'hidden',
+      frame: false,
       alwaysOnTop: true,
       visualEffectState: 'inactive',
-      closable: false,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
