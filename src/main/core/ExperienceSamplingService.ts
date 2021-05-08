@@ -48,14 +48,10 @@ export class ExperienceSamplingService {
     }
 
     const dueExperienceSamples = this.getDueExperienceSamples();
-    LOG.debug(`Due ExperienceSamples ${dueExperienceSamples}`);
     dueExperienceSamples.forEach(async (dueExperienceSample) => {
-      LOG.debug(`${dueExperienceSample}`);
       if (!this.shownExperienceSampleIds.includes(dueExperienceSample.id)) {
-        LOG.debug(`${this.shownExperienceSampleIds}`);
         await this.createAndShowExperienceSampleWindow(dueExperienceSample);
         this.shownExperienceSampleIds.push(dueExperienceSample.id);
-        LOG.debug(`${this.shownExperienceSampleIds}`);
       }
     });
   }
