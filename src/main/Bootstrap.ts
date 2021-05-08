@@ -5,6 +5,7 @@ import {
   BrowserWindow,
   dialog,
   globalShortcut,
+  ipcMain,
   Menu,
   MenuItem,
   nativeImage,
@@ -88,6 +89,31 @@ export class Bootstrap {
               message: 'No updates available',
               icon: alertImage,
             });
+          },
+        }),
+        new MenuItem({
+          label: 'Sync notifications',
+          click: async () => {
+            try {
+              await this.webContents.send('fetch-notifications');
+              ipcMain.once(
+                'fetch-notifications-answer',
+                (event, hasFetchedNotifications) => {
+                  dialog.showMessageBox({
+                    message:
+                      hasFetchedNotifications === true
+                        ? 'Successfully synchronized notifications!'
+                        : 'Did not fetch notifications!',
+                    icon: alertImage,
+                  });
+                }
+              );
+            } catch (e) {
+              dialog.showMessageBox({
+                message: `An error occurred while fetching the notifications: ${e.message}`,
+                icon: alertImage,
+              });
+            }
           },
         }),
         new MenuItem({
