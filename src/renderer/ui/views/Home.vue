@@ -144,7 +144,9 @@ export default class Home extends Vue {
     const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
       this.user
     );
-    const experienceSamples = await this.experienceSamplingUseCase.getMockExperienceSamplings();
+    const experienceSamples = await this.experienceSamplingUseCase.getExperienceSamplingsForUser(
+      this.user.id
+    );
 
     const allNotifications = occurrenceNotifications.concat(
       reflectionNotifications

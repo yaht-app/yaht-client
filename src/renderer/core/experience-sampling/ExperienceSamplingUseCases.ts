@@ -2,7 +2,6 @@ import { ExperienceSample } from '@/renderer/core/experience-sampling/models/Exp
 import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
-import { DateTime } from 'luxon';
 
 @injectable()
 export class ExperienceSamplingUseCases {
@@ -43,29 +42,5 @@ export class ExperienceSamplingUseCases {
       experienceSampleId,
       skippedAt
     );
-  }
-
-  async getMockExperienceSamplings(): Promise<ExperienceSample[]> {
-    return [
-      {
-        id: Math.floor(Math.random() * 99999),
-        scheduled_at: DateTime.now().plus({ seconds: 5 }).toString(),
-        sampled_at: null,
-        skipped_at: null,
-        value: null,
-        config: {
-          id: Math.floor(Math.random() * 99999),
-          title: 'How productive did you feel in the last hour?',
-          prompt: 'How productive did you feel in the last hour?',
-          type: 'scale',
-          scale: {
-            steps: 4,
-            label_start: 'not at all',
-            label_center: 'moderately',
-            label_end: 'very',
-          },
-        },
-      },
-    ];
   }
 }
