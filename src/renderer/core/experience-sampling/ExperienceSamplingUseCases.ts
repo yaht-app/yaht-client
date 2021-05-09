@@ -24,7 +24,7 @@ export class ExperienceSamplingUseCases {
     experienceSampleId: number,
     value: string | number,
     sampledAt: string
-  ): Promise<void> {
+  ): Promise<ExperienceSample> {
     return await this.experienceSamplingService.updateExperienceSampleValue(
       userId,
       experienceSampleId,
@@ -37,7 +37,7 @@ export class ExperienceSamplingUseCases {
     userId: number,
     experienceSampleId: number,
     skippedAt: string
-  ): Promise<void> {
+  ): Promise<ExperienceSample> {
     return await this.experienceSamplingService.updateExperienceSampleSkippedAt(
       userId,
       experienceSampleId,

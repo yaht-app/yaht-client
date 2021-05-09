@@ -9,10 +9,10 @@ export interface ExperienceSamplingService {
     experienceSampleId: number,
     value: string | number,
     sampledAt: string
-  ): Promise<void>;
+  ): Promise<ExperienceSample>;
   updateExperienceSampleSkippedAt(
     userId: number,
     experienceSampleId: number,
     skippedAt: string
-  ): Promise<void>;
+  ): Promise<ExperienceSample>;
 }

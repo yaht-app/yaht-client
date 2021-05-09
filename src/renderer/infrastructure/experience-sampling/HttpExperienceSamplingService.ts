@@ -34,27 +34,33 @@ export class HttpExperienceSamplingService
     experienceSampleId: number,
     value: string | number,
     sampledAt: string
-  ): Promise<void> {
-    await this.httpService.put(
-      `/users/${userId}/sampling/${experienceSampleId}`,
-      { sampled_at: sampledAt, value }
+  ): Promise<ExperienceSample> {
+    const response: AxiosResponse<
+      GenericResponse<ExperienceSample>
+    > = await this.httpService.put(
+      `/users/${userId}/samplings/${experienceSampleId}`,
+      { sampled_at: sampledAt, value: value }
     );
     LOG.debug(
-      `Updated experienceSampling (id=${experienceSampleId}, sampledAt=${sampledAt})`
+      `Updated experienceSampling (id=${experienceSampleId}, value=${value}, sampledAt=${sampledAt})`
     );
+    return response.data.data;
   }
 
   async updateExperienceSampleSkippedAt(
     userId: number,
     experienceSampleId: number,
     skippedAt: string
-  ): Promise<void> {
-    await this.httpService.put(
-      `/users/${userId}/sampling/${experienceSampleId}`,
+  ): Promise<ExperienceSample> {
+    const response: AxiosResponse<
+      GenericResponse<ExperienceSample>
+    > = await this.httpService.put(
+      `/users/${userId}/samplings/${experienceSampleId}`,
       { skipped_at: skippedAt }
     );
     LOG.debug(
       `Updated experienceSampling (id=${experienceSampleId}, skippedAt=${skippedAt})`
     );
+    return response.data.data;
   }
 }

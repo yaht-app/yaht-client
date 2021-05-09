@@ -6,7 +6,7 @@
           <div class="flex items-start">
             <div class="w-0 flex-1">
               <p class="font-medium text-gray-900">
-                How productive did you feel in the last hour?
+                {{ experienceSampling.config.prompt }}
               </p>
               <div class="flex flex-row justify-between mt-2 -mx-2">
                 <div
@@ -14,7 +14,12 @@
                   v-for="value in experienceSampling.config.scale.steps"
                   :key="value"
                 >
-                  <span class="flex mx-auto font-medium">{{ value }}</span>
+                  <span
+                    @click="onValueClicked(value)"
+                    class="flex mx-auto font-medium"
+                  >
+                    {{ value }}
+                  </span>
                 </div>
               </div>
               <div class="flex flex-row text-gray-400 text-sm mt-1">
@@ -52,6 +57,7 @@ import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/
 import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { getLogger } from '@/shared/logger';
 import { ipcRenderer, remote } from 'electron';
+import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 
@@ -66,7 +72,7 @@ export default class ExperienceNotification extends Vue {
   private experienceSamplingUseCase: ExperienceSamplingUseCases;
   private experienceSampling: ExperienceSample | null = null;
   private isLoadingAuth = true;
-  private isLoadingexperienceSampling = true;
+  private isLoadingExperienceSampling = true;
 
   @auth.State isLoggedIn!: boolean;
   @auth.State user!: UserAuthDTO;
@@ -89,7 +95,7 @@ export default class ExperienceNotification extends Vue {
         )}`
       );
       this.experienceSampling = experienceSample;
-      this.isLoadingexperienceSampling = false;
+      this.isLoadingExperienceSampling = false;
     });
 
     await this.authUseCase.setAuthFromUserAuthDTO(
@@ -98,9 +104,30 @@ export default class ExperienceNotification extends Vue {
     this.isLoadingAuth = false;
   }
 
+  async onValueClicked(value: number): Promise<void> {
+    LOG.debug(`onValueClicked called, value=${value}`);
+    this.experienceSamplingUseCase.updateExperienceSamplingValue(
+      this.user.id,
+      this.experienceSampling!.id,
+      value,
+      DateTime.now().toString()
+    );
+    await this.closeWindow();
+  }
+
   async onSkipClicked(): Promise<void> {
-    const window = await remote.BrowserWindow.getFocusedWindow();
     LOG.debug('Skip called, closing window...');
+    this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
+      this.user.id,
+      this.experienceSampling!.id,
+      DateTime.now().toString()
+    );
+    await this.closeWindow();
+  }
+
+  async closeWindow(): Promise<void> {
+    const window = await remote.BrowserWindow.getFocusedWindow();
+
     if (window) {
       window.close();
     }
