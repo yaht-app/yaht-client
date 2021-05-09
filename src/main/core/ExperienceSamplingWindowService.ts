@@ -17,6 +17,7 @@ export class ExperienceSamplingWindowService {
       x: width - windowWidth - windowPadding,
       y: 20 + windowPadding,
       show: false,
+      opacity: 0,
       frame: false,
       alwaysOnTop: true,
       visualEffectState: 'inactive',
@@ -24,6 +25,7 @@ export class ExperienceSamplingWindowService {
       maximizable: false,
       fullscreenable: false,
       resizable: false,
+      acceptFirstMouse: true,
 
       webPreferences: {
         // Required for Spectron testing
@@ -51,8 +53,14 @@ export class ExperienceSamplingWindowService {
   public async showWindow(experienceSample: ExperienceSample): Promise<void> {
     if (this.window) {
       await this.window.setVisibleOnAllWorkspaces(true);
-      await this.window.show();
       this.window.webContents.send('experience-sample', experienceSample);
+      let opacity = 0;
+      const interval = setInterval(() => {
+        if (opacity >= 1) clearInterval(interval);
+        this.window!.setOpacity(opacity);
+        opacity += 0.1;
+      }, 10);
+      await this.window.show();
     }
   }
 }
