@@ -229,7 +229,7 @@ export default class Home extends Vue {
   @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5 relative;
 
   .yaht-logo {
-    @apply absolute top-10 left-1/2 transform -translate-x-1/2 opacity-70 transition-opacity hover:opacity-100;
+    @apply absolute top-10 left-1/2 transform -translate-x-1/2;
     width: 120px;
   }
 }
