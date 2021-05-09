@@ -1,14 +1,14 @@
 import { WindowMenu } from '@/main/WindowMenu';
-import { getLogger } from '@/shared/logger';
+import { getLogger, LOG_PATH } from '@/shared/logger';
 import {
   app,
   BrowserWindow,
   dialog,
-  globalShortcut,
   ipcMain,
   Menu,
   MenuItem,
   nativeImage,
+  shell,
   Tray,
 } from 'electron';
 import { LogFunctions } from 'electron-log';
@@ -116,6 +116,14 @@ export class Bootstrap {
             }
           },
         }),
+        { type: 'separator' },
+        new MenuItem({
+          label: 'Open Logs',
+          click: async (): Promise<void> => {
+            await shell.openExternal(`file://${LOG_PATH}`);
+          },
+        }),
+        { type: 'separator' },
         new MenuItem({
           label: 'Quit',
           click: () => {
