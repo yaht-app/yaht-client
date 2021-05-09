@@ -5,7 +5,7 @@
         <div class="w-0 flex-1 p-4">
           <div class="flex items-start">
             <div class="w-0 flex-1">
-              <p class="font-medium text-gray-900">
+              <p class="prompt">
                 {{ experienceSampling.config.prompt }}
               </p>
               <div class="flex flex-row justify-between mt-2 -mx-2">
@@ -106,38 +106,29 @@ export default class ExperienceNotification extends Vue {
 
   async onValueClicked(value: number): Promise<void> {
     LOG.debug(`onValueClicked called, value=${value}`);
-    this.hideWindow();
-    await this.experienceSamplingUseCase.updateExperienceSamplingValue(
+    this.experienceSamplingUseCase.updateExperienceSamplingValue(
       this.user.id,
       this.experienceSampling!.id,
       value,
       DateTime.now().toString()
     );
-    await this.closeWindow();
+    await this.fadeWindowOut();
   }
 
   async onSkipClicked(): Promise<void> {
     LOG.debug('Skip called, closing window...');
-    this.hideWindow();
     await this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
       this.user.id,
       this.experienceSampling!.id,
       DateTime.now().toString()
     );
-    await this.closeWindow();
+    await this.fadeWindowOut();
   }
 
-  async hideWindow(): Promise<void> {
+  private async fadeWindowOut(): Promise<void> {
     const window = await remote.BrowserWindow.getFocusedWindow();
-    if (window) {
-      window.hide();
-    }
-  }
-  async closeWindow(): Promise<void> {
-    const window = await remote.BrowserWindow.getFocusedWindow();
-    if (window) {
-      window.close();
-    }
+    await window?.setOpacity(0);
+    await window?.close();
   }
 }
 </script>
