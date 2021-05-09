@@ -49,9 +49,9 @@ export class Bootstrap {
     this.webContents = this.mainWindow.webContents;
 
     if (this.isDevelopment) {
-      globalShortcut.register('CommandOrControl+R', () =>
-        this.webContents.reload()
-      );
+      // globalShortcut.register('CommandOrControl+R', () =>
+      //  this.webContents.reload()
+      // );
     }
 
     this.windowMenu = new WindowMenu(this.mainWindow);
