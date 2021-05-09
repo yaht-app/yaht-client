@@ -57,7 +57,7 @@ import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCase
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { ipcRenderer, IpcRendererEvent, remote } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -109,6 +109,11 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
+      const mainWindow = await remote.BrowserWindow.getFocusedWindow();
+      if (process.env.NODE_ENV === 'production' && mainWindow) {
+        mainWindow.hide();
+      }
+
       await this.fetchNotifications();
       this.fetchNotificationsInterval = window.setInterval(
         this.fetchNotifications,
