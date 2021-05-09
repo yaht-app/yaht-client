@@ -50,13 +50,14 @@ import SERVICE from '@/constants/ServiceIdentifiers';
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
+import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/ExperienceSamplingUseCases';
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
-import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
+import { NotificationUseCases } from '@/renderer/core/notification/NotificationUseCases';
 import { OccurrenceUseCases } from '@/renderer/core/occurrence/OccurrenceUseCases';
 import { UserUseCases } from '@/renderer/core/user/UserUseCases';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
-import { ipcRenderer, IpcRendererEvent, NotificationAction } from 'electron';
+import { ipcRenderer, IpcRendererEvent, remote } from 'electron';
 import { DateTime } from 'luxon';
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
@@ -70,11 +71,15 @@ const auth = namespace('authStore');
 export default class Home extends Vue {
   private authUseCase: AuthUseCases;
   private userUseCase: UserUseCases;
+  private notificationUseCase: NotificationUseCases;
   private occurrenceUseCase: OccurrenceUseCases;
+  private experienceSamplingUseCase: ExperienceSamplingUseCases;
   private httpService: HttpService;
 
-  public isLoggingIn = false;
-  public userName = 'sebastian.richner@uzh.ch';
+  private isLoggingIn = false;
+  private isFetchingNotifications = false;
+  private fetchNotificationsInterval: number | undefined;
+  private userName = 'sebastian.richner@uzh.ch';
   public password = '';
 
   @auth.State isLoggedIn!: boolean;
@@ -84,7 +89,11 @@ export default class Home extends Vue {
     super();
     this.authUseCase = this.$container.get(USE_CASE.AUTH);
     this.userUseCase = this.$container.get(USE_CASE.USER);
+    this.notificationUseCase = this.$container.get(USE_CASE.NOTIFICATION);
     this.occurrenceUseCase = this.$container.get(USE_CASE.OCCURRENCE);
+    this.experienceSamplingUseCase = this.$container.get(
+      USE_CASE.EXPERIENCE_SAMPLING
+    );
     this.httpService = this.$container.get(SERVICE.HTTP);
   }
 
@@ -92,6 +101,7 @@ export default class Home extends Vue {
     ipcRenderer.on('notification-skipped', this.handleSkippedNotification);
     ipcRenderer.on('notification-started', this.handleStartedNotification);
     ipcRenderer.on('notification-ended', this.handleEndedNotification);
+    ipcRenderer.on('fetch-notifications', this.fetchNotifications);
   }
 
   async loginClicked(): Promise<void> {
@@ -99,28 +109,63 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
-        this.user.id
-      );
-      const occurrenceNotifications = this.createNotificationsFromOccurrences(
-        occurrences
-      );
-      const reflectionNotifications = this.createNotificationsFromReflections(
-        this.user
-      );
+      const mainWindow = await remote.BrowserWindow.getFocusedWindow();
+      if (process.env.NODE_ENV === 'production' && mainWindow) {
+        mainWindow.hide();
+      }
 
-      const allNotifications = occurrenceNotifications.concat(
-        reflectionNotifications
+      await this.fetchNotifications();
+      this.fetchNotificationsInterval = window.setInterval(
+        this.fetchNotifications,
+        5 * 60 * 1000
       );
-
-      LOG.debug(
-        `Notifications loaded in Home, length=${allNotifications.length}`
-      );
-      ipcRenderer.send('notifications', allNotifications);
     } catch (e) {
       LOG.error(e);
     }
     this.isLoggingIn = false;
+  }
+
+  async fetchNotifications(): Promise<void> {
+    if (this.isFetchingNotifications) {
+      LOG.info(
+        'fetchNotifications called, already fetching notifications, skipping...'
+      );
+      ipcRenderer.send('fetch-notifications-answer', false);
+      return;
+    }
+    if (!this.isLoggedIn) {
+      LOG.error('fetchNotifications called, user not logged in, skipping...');
+      ipcRenderer.send('fetch-notifications-answer', false);
+      return;
+    }
+    LOG.info('fetchNotifications called, fetching notifications...');
+    this.isFetchingNotifications = true;
+    const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
+      this.user.id
+    );
+    const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
+      occurrences
+    );
+    const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
+      this.user
+    );
+    const experienceSamples = await this.experienceSamplingUseCase.getExperienceSamplingsForUser(
+      this.user.id
+    );
+
+    const allNotifications = occurrenceNotifications.concat(
+      reflectionNotifications
+    );
+    this.isFetchingNotifications = false;
+    ipcRenderer.send('fetch-notifications-answer', true);
+
+    if (allNotifications) {
+      LOG.debug(
+        `Notifications loaded in Home, length=${allNotifications.length}`
+      );
+      ipcRenderer.send('notifications', allNotifications);
+      ipcRenderer.send('experience-samples', experienceSamples);
+    }
   }
 
   async handleSkippedNotification(
@@ -178,93 +223,10 @@ export default class Home extends Vue {
   }
 
   logoutClicked(): void {
+    clearInterval(this.fetchNotificationsInterval);
+    this.isFetchingNotifications = false;
     ipcRenderer.send('logout');
     this.authUseCase.logout();
-  }
-
-  createNotificationsFromReflections(user: UserAuthDTO): BasicNotification[] {
-    let notifications: BasicNotification[] = [];
-    if (user.reflection_at.length > 0 && user.reflection_on.length > 0) {
-      notifications = this.createNotificationsFromReflectionData(
-        user.reflection_at,
-        user.reflection_on
-      );
-    }
-    return notifications;
-  }
-
-  createNotificationsFromReflectionData(
-    atStrings: string[],
-    onStrings: string[]
-  ): BasicNotification[] {
-    let notifications: BasicNotification[] = [];
-    onStrings.forEach((weekday) => {
-      atStrings.forEach((time) => {
-        notifications.push(
-          this.createReflectionNotificationFromDateTime(
-            this.getDateTimeFromWeekdayAndHour(weekday, time)
-          )
-        );
-      });
-    });
-    LOG.error(notifications);
-    return notifications;
-  }
-
-  getDateTimeFromWeekdayAndHour(weekday: string, time: string): DateTime {
-    const weekdayMap = {
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-      sunday: 7,
-    };
-    const [hour, minute] = time.split(':');
-
-    return DateTime.now().set({
-      weekday: (weekdayMap as any)[weekday],
-      hour: parseInt(hour),
-      minute: parseInt(minute),
-      second: 0,
-    });
-  }
-
-  createReflectionNotificationFromDateTime(
-    dateTime: DateTime
-  ): BasicNotification {
-    return new BasicNotification(
-      `Skip`,
-      'reflection',
-      'Reflection',
-      `Add your reflection`,
-      dateTime.toString(),
-      undefined,
-      [],
-      0
-    );
-  }
-
-  createNotificationsFromOccurrences(
-    occurrences: Occurrence[]
-  ): BasicNotification[] {
-    return occurrences.map((o) => {
-      const actions: NotificationAction[] = [];
-      if (o.habit.is_skippable) {
-        actions.push({ text: 'Skip', type: 'button' });
-      }
-      return new BasicNotification(
-        `Start ${o.habit.title}`,
-        'start',
-        o.habit.title,
-        `Start ${o.habit.title} now`,
-        o.scheduled_at,
-        o.id,
-        actions,
-        o.habit.duration
-      );
-    });
   }
 }
 </script>
@@ -274,7 +236,7 @@ export default class Home extends Vue {
   @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 p-5 relative;
 
   .yaht-logo {
-    @apply absolute top-10 left-1/2 transform -translate-x-1/2 opacity-70 transition-opacity hover:opacity-100;
+    @apply absolute top-10 left-1/2 transform -translate-x-1/2;
     width: 120px;
   }
 }

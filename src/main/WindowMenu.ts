@@ -34,6 +34,7 @@ export class WindowMenu {
           { role: 'cut' },
           { role: 'copy' },
           { role: 'paste' },
+          { role: 'selectAll' },
         ],
       },
       {
@@ -44,9 +45,6 @@ export class WindowMenu {
             click: async (): Promise<void> => {
               await shell.openExternal(`file://${LOG_PATH}`);
             },
-          },
-          {
-            type: 'separator',
           },
         ],
       },

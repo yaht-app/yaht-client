@@ -1,5 +1,5 @@
 import Home from '@/renderer/ui/views/Home.vue';
-import ReflectionNotification from '@/renderer/ui/views/ReflectionNotification.vue';
+import ExperienceNotification from '@/renderer/ui/views/ExperienceNotification.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 
@@ -12,9 +12,9 @@ const routes: Array<RouteConfig> = [
     component: Home,
   },
   {
-    path: '/reflection-notification',
-    name: 'ReflectionNotification',
-    component: ReflectionNotification,
+    path: '/experience-notification',
+    name: 'ExperienceNotification',
+    component: ExperienceNotification,
   },
 ];
 

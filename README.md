@@ -32,3 +32,12 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Notarize
+see https://github.com/electron/electron-notarize
+```
+export APPLEID=<your-apple-id>
+```
+```
+security add-generic-password -a "AC_USERNAME" -w "<your-app-password>" -s "AC_PASSWORD"
+```
