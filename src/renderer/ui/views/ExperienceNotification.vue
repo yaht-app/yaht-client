@@ -13,11 +13,9 @@
                   class="sample-answer"
                   v-for="value in experienceSampling.config.scale.steps"
                   :key="value"
+                  @click="onValueClicked(value)"
                 >
-                  <span
-                    @click="onValueClicked(value)"
-                    class="flex mx-auto font-medium"
-                  >
+                  <span class="flex mx-auto font-medium">
                     {{ value }}
                   </span>
                 </div>
@@ -36,13 +34,15 @@
             </div>
           </div>
         </div>
-        <div class="flex border-l border-gray-200 cursor-pointer">
-          <button
-            @click="onSkipClicked"
+        <div
+          class="flex border-l border-gray-200 cursor-pointer"
+          @click="onSkipClicked"
+        >
+          <div
             class="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
           >
             Skip
-          </button>
+          </div>
         </div>
       </div>
     </template>
@@ -65,6 +65,7 @@ const LOG = getLogger('ExperienceNotification.vue');
 const auth = namespace('authStore');
 
 @Component({
+  name: 'ExperienceNotification',
   components: {},
 })
 export default class ExperienceNotification extends Vue {
@@ -135,6 +136,11 @@ export default class ExperienceNotification extends Vue {
 
 <style lang="scss" scoped>
 .experience-sampling-notification {
+  user-select: none;
+  overflow: hidden;
+  .prompt {
+    @apply font-medium text-gray-900;
+  }
   .sample-answer {
     @apply mx-1 flex w-8 h-8 bg-gray-100 text-center items-center text-gray-500 align-middle rounded-md border border-gray-200 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer transition-all;
   }
