@@ -1,6 +1,7 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService';
+import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';
@@ -26,5 +27,34 @@ export class HttpExperienceSamplingService
 
     LOG.debug(`Got experienceSamplingDataByUserId(${userId})`);
     return response.data.data;
+  }
+
+  async updateExperienceSampleValue(
+    userId: number,
+    experienceSampleId: number,
+    value: string | number,
+    sampledAt: string
+  ): Promise<void> {
+    await this.httpService.put(
+      `/users/${userId}/sampling/${experienceSampleId}`,
+      { sampled_at: sampledAt, value }
+    );
+    LOG.debug(
+      `Updated experienceSampling (id=${experienceSampleId}, sampledAt=${sampledAt})`
+    );
+  }
+
+  async updateExperienceSampleSkippedAt(
+    userId: number,
+    experienceSampleId: number,
+    skippedAt: string
+  ): Promise<void> {
+    await this.httpService.put(
+      `/users/${userId}/sampling/${experienceSampleId}`,
+      { skipped_at: skippedAt }
+    );
+    LOG.debug(
+      `Updated experienceSampling (id=${experienceSampleId}, skippedAt=${skippedAt})`
+    );
   }
 }

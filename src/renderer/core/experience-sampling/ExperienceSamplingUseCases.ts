@@ -19,6 +19,32 @@ export class ExperienceSamplingUseCases {
     );
   }
 
+  async updateExperienceSamplingValue(
+    userId: number,
+    experienceSampleId: number,
+    value: string | number,
+    sampledAt: string
+  ): Promise<void> {
+    return await this.experienceSamplingService.updateExperienceSampleValue(
+      userId,
+      experienceSampleId,
+      value,
+      sampledAt
+    );
+  }
+
+  async updateExperienceSamplingSkippedAt(
+    userId: number,
+    experienceSampleId: number,
+    skippedAt: string
+  ): Promise<void> {
+    return await this.experienceSamplingService.updateExperienceSampleSkippedAt(
+      userId,
+      experienceSampleId,
+      skippedAt
+    );
+  }
+
   async getMockExperienceSamplings(): Promise<ExperienceSample[]> {
     return [
       {
