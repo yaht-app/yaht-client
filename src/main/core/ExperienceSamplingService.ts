@@ -59,8 +59,12 @@ export class ExperienceSamplingService {
   private async createAndShowExperienceSampleWindow(
     experienceSample: ExperienceSample
   ): Promise<void> {
-    await this.experienceSamplingWindowService.createWindow(experienceSample);
-    await this.experienceSamplingWindowService.showWindow();
+    LOG.debug(
+      `Creating ExperienceSampleWindow with ExperienceSampleID=${experienceSample.id}`
+    );
+    await this.experienceSamplingWindowService.createWindow();
+    LOG.debug(`Created window, showing window now...`);
+    await this.experienceSamplingWindowService.showWindow(experienceSample);
   }
 
   private isExperienceSampleWithinTime(dateTime: DateTime): boolean {

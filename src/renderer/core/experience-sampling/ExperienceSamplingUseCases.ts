@@ -22,14 +22,23 @@ export class ExperienceSamplingUseCases {
   async getMockExperienceSamplings(): Promise<ExperienceSample[]> {
     return [
       {
-        id: 1234,
+        id: Math.floor(Math.random() * 99999),
         scheduled_at: DateTime.now().plus({ seconds: 5 }).toString(),
-        prompt: 'How productive did you feel in the last hour?',
-        scale_start: 1,
-        scale_end: 7,
-        scale_label_start: 'not at all',
-        scale_label_center: 'not at all',
-        scale_label_end: 'not at all',
+        sampled_at: null,
+        skipped_at: null,
+        value: null,
+        config: {
+          id: Math.floor(Math.random() * 99999),
+          title: 'How productive did you feel in the last hour?',
+          prompt: 'How productive did you feel in the last hour?',
+          type: 'scale',
+          scale: {
+            steps: 4,
+            label_start: 'not at all',
+            label_center: 'moderately',
+            label_end: 'very',
+          },
+        },
       },
     ];
   }

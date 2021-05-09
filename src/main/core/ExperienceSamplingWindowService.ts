@@ -6,7 +6,7 @@ export class ExperienceSamplingWindowService {
   private window?: Electron.BrowserWindow;
   private webContents?: Electron.WebContents;
 
-  public async createWindow(experienceSample: ExperienceSample): Promise<void> {
+  public async createWindow(): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
     const windowWidth = 450;
@@ -38,20 +38,21 @@ export class ExperienceSamplingWindowService {
       await this.window.loadURL(
         `${process.env.WEBPACK_DEV_SERVER_URL}/#/experience-notification`
       );
-      if (!process.env.IS_TEST)
+      if (!process.env.IS_TEST) {
         this.window.webContents.openDevTools({ mode: 'detach' });
+      }
     } else {
       createProtocol('app');
       // Load the index.html when not in development
       await this.window.loadURL('app:// ./index.html#experience-notification');
-      this.webContents!.send('experience-sample', experienceSample);
     }
   }
 
-  public async showWindow(): Promise<void> {
+  public async showWindow(experienceSample: ExperienceSample): Promise<void> {
     if (this.window) {
       await this.window.setVisibleOnAllWorkspaces(true);
       await this.window.show();
+      this.window.webContents.send('experience-sample', experienceSample);
     }
   }
 }

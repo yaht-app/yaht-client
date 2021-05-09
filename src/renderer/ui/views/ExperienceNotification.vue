@@ -1,7 +1,6 @@
 <template>
   <div class="experience-sampling-notification">
-    <template v-if="!isLoading">
-      {{ experienceSamplingConfig }}
+    <template v-if="experienceSampling">
       <div class="max-w-md w-full pointer-events-auto flex">
         <div class="w-0 flex-1 p-4">
           <div class="flex items-start">
@@ -10,37 +9,29 @@
                 How productive did you feel in the last hour?
               </p>
               <div class="flex flex-row justify-between mt-2 -mx-2">
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">1</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">2</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">3</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">4</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">5</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">6</span>
-                </div>
-                <div class="sample-answer">
-                  <span class="flex mx-auto font-medium">7</span>
+                <div
+                  class="sample-answer"
+                  v-for="value in experienceSampling.config.scale.steps"
+                  :key="value"
+                >
+                  <span class="flex mx-auto font-medium">{{ value }}</span>
                 </div>
               </div>
               <div class="flex flex-row text-gray-400 text-sm mt-1">
-                <div class="">not at all</div>
-                <div class="mx-auto">moderately</div>
-                <div class="">very</div>
+                <div class="">
+                  {{ experienceSampling.config.scale.label_start }}
+                </div>
+                <div class="mx-auto">
+                  {{ experienceSampling.config.scale.label_center }}
+                </div>
+                <div class="">
+                  {{ experienceSampling.config.scale.label_end }}
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="flex border-l border-gray-200">
+        <div class="flex border-l border-gray-200 cursor-pointer">
           <button
             @click="onSkipClicked"
             class="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -57,8 +48,8 @@
 import USE_CASE from '@/constants/UseCaseIdentifiers';
 import { AuthUseCases } from '@/renderer/core/auth/AuthUseCases';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO';
-import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample.ts';
 import { ExperienceSamplingUseCases } from '@/renderer/core/experience-sampling/ExperienceSamplingUseCases';
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { getLogger } from '@/shared/logger';
 import { ipcRenderer, remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
@@ -73,8 +64,9 @@ const auth = namespace('authStore');
 export default class ExperienceNotification extends Vue {
   private authUseCase: AuthUseCases;
   private experienceSamplingUseCase: ExperienceSamplingUseCases;
-  private experienceSamplingConfig: ExperienceSample | undefined;
-  private isLoading = true;
+  private experienceSampling: ExperienceSample | null = null;
+  private isLoadingAuth = true;
+  private isLoadingexperienceSampling = true;
 
   @auth.State isLoggedIn!: boolean;
   @auth.State user!: UserAuthDTO;
@@ -88,15 +80,22 @@ export default class ExperienceNotification extends Vue {
   }
 
   async created(): Promise<void> {
+    LOG.info('Created!');
+
     ipcRenderer.on('experience-sample', (event, experienceSample) => {
-      this.experienceSamplingConfig = experienceSample;
+      LOG.debug(
+        `Received experience-sample event with experienceSample=${JSON.stringify(
+          experienceSample
+        )}`
+      );
+      this.experienceSampling = experienceSample;
+      this.isLoadingexperienceSampling = false;
     });
 
     await this.authUseCase.setAuthFromUserAuthDTO(
       await remote.getGlobal('user')
     );
-    this.isLoading = true;
-    this.isLoading = false;
+    this.isLoadingAuth = false;
   }
 
   async onSkipClicked(): Promise<void> {
@@ -112,7 +111,7 @@ export default class ExperienceNotification extends Vue {
 <style lang="scss" scoped>
 .experience-sampling-notification {
   .sample-answer {
-    @apply mx-2 flex w-8 h-8 bg-gray-100 text-center items-center text-gray-500 align-middle rounded-md border border-gray-200 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer transition-all;
+    @apply mx-1 flex w-8 h-8 bg-gray-100 text-center items-center text-gray-500 align-middle rounded-md border border-gray-200 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer transition-all;
   }
 }
 </style>
