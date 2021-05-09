@@ -46,9 +46,6 @@ export class WindowMenu {
               await shell.openExternal(`file://${LOG_PATH}`);
             },
           },
-          {
-            type: 'separator',
-          },
         ],
       },
     ]);
