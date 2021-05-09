@@ -6,6 +6,7 @@
 
 <style lang="scss">
 @import 'styles/global';
+@import '~animate.css';
 
 #app {
   @apply bg-white;

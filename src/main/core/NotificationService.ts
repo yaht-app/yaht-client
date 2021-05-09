@@ -36,6 +36,10 @@ export class NotificationService {
     if (basicNotifications.length > 0) {
       this.cronJob.start();
     }
+
+    LOG.debug(
+      `BasicNotifications contain ${this.getReflectionNotificationCount()} notifications of type reflection.`
+    );
   }
 
   public stopService(): void {
@@ -149,8 +153,8 @@ export class NotificationService {
 
   private isNotificationWithinTime(dateTime: DateTime): boolean {
     return (
-      dateTime.diffNow('seconds').seconds <= 2 &&
-      dateTime.diffNow('seconds').seconds >= -2
+      dateTime.diffNow('seconds').seconds <= 1 &&
+      dateTime.diffNow('seconds').seconds >= -1
     );
   }
 
@@ -163,6 +167,11 @@ export class NotificationService {
         )
       );
     });
+  }
+
+  private getReflectionNotificationCount(): number {
+    return this.userBasicNotifications.filter((n) => n.type === 'reflection')
+      .length;
   }
 
   private getNextScheduledNotification(): BasicNotification {

@@ -1,32 +1,31 @@
+import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { BrowserWindow, screen } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
-export class ReflectionWindowService {
+export class ExperienceSamplingWindowService {
   private window?: Electron.BrowserWindow;
   private webContents?: Electron.WebContents;
-  readonly application: Electron.App;
-
-  constructor(application: Electron.App) {
-    this.application = application;
-  }
 
   public async createWindow(): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
+    const windowWidth = 450;
+    const windowHeight = 120;
     this.window = await new BrowserWindow({
-      width: 500,
-      height: 250,
-      x: width - 500 - windowPadding,
+      width: windowWidth,
+      height: windowHeight,
+      x: width - windowWidth - windowPadding,
       y: 20 + windowPadding,
       show: false,
-      titleBarStyle: 'hidden',
+      opacity: 0,
+      frame: false,
       alwaysOnTop: true,
       visualEffectState: 'inactive',
-      closable: false,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
       resizable: false,
+      acceptFirstMouse: true,
 
       webPreferences: {
         // Required for Spectron testing
@@ -39,20 +38,28 @@ export class ReflectionWindowService {
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
       await this.window.loadURL(
-        `${process.env.WEBPACK_DEV_SERVER_URL}/#/reflection-notification`
+        `${process.env.WEBPACK_DEV_SERVER_URL}/#/experience-notification`
       );
-      if (!process.env.IS_TEST)
+      if (!process.env.IS_TEST) {
         this.window.webContents.openDevTools({ mode: 'detach' });
+      }
     } else {
       createProtocol('app');
       // Load the index.html when not in development
-      await this.window.loadURL('app:// ./index.html#reflection-notification');
+      await this.window.loadURL('app:// ./index.html#experience-notification');
     }
   }
 
-  public async showWindow(): Promise<void> {
+  public async showWindow(experienceSample: ExperienceSample): Promise<void> {
     if (this.window) {
       await this.window.setVisibleOnAllWorkspaces(true);
+      this.window.webContents.send('experience-sample', experienceSample);
+      let opacity = 0;
+      const interval = setInterval(() => {
+        if (opacity >= 1) clearInterval(interval);
+        this.window!.setOpacity(opacity);
+        opacity += 0.1;
+      }, 10);
       await this.window.show();
     }
   }

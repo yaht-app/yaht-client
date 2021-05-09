@@ -1,13 +1,14 @@
 import { WindowMenu } from '@/main/WindowMenu';
-import { getLogger } from '@/shared/logger';
+import { getLogger, LOG_PATH } from '@/shared/logger';
 import {
   app,
   BrowserWindow,
   dialog,
-  globalShortcut,
+  ipcMain,
   Menu,
   MenuItem,
   nativeImage,
+  shell,
   Tray,
 } from 'electron';
 import { LogFunctions } from 'electron-log';
@@ -48,9 +49,9 @@ export class Bootstrap {
     this.webContents = this.mainWindow.webContents;
 
     if (this.isDevelopment) {
-      globalShortcut.register('CommandOrControl+R', () =>
-        this.webContents.reload()
-      );
+      // globalShortcut.register('CommandOrControl+R', () =>
+      //  this.webContents.reload()
+      // );
     }
 
     this.windowMenu = new WindowMenu(this.mainWindow);
@@ -90,6 +91,39 @@ export class Bootstrap {
             });
           },
         }),
+        new MenuItem({
+          label: 'Sync notifications',
+          click: async () => {
+            try {
+              await this.webContents.send('fetch-notifications');
+              ipcMain.once(
+                'fetch-notifications-answer',
+                (event, hasFetchedNotifications) => {
+                  dialog.showMessageBox({
+                    message:
+                      hasFetchedNotifications === true
+                        ? 'Successfully synchronized notifications!'
+                        : 'Did not fetch notifications!',
+                    icon: alertImage,
+                  });
+                }
+              );
+            } catch (e) {
+              dialog.showMessageBox({
+                message: `An error occurred while fetching the notifications: ${e.message}`,
+                icon: alertImage,
+              });
+            }
+          },
+        }),
+        { type: 'separator' },
+        new MenuItem({
+          label: 'Open Logs',
+          click: async (): Promise<void> => {
+            await shell.openExternal(`file://${LOG_PATH}`);
+          },
+        }),
+        { type: 'separator' },
         new MenuItem({
           label: 'Quit',
           click: () => {
