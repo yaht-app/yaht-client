@@ -106,7 +106,8 @@ export default class ExperienceNotification extends Vue {
 
   async onValueClicked(value: number): Promise<void> {
     LOG.debug(`onValueClicked called, value=${value}`);
-    this.experienceSamplingUseCase.updateExperienceSamplingValue(
+    this.hideWindow();
+    await this.experienceSamplingUseCase.updateExperienceSamplingValue(
       this.user.id,
       this.experienceSampling!.id,
       value,
@@ -117,7 +118,8 @@ export default class ExperienceNotification extends Vue {
 
   async onSkipClicked(): Promise<void> {
     LOG.debug('Skip called, closing window...');
-    this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
+    this.hideWindow();
+    await this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
       this.user.id,
       this.experienceSampling!.id,
       DateTime.now().toString()
@@ -125,9 +127,14 @@ export default class ExperienceNotification extends Vue {
     await this.closeWindow();
   }
 
+  async hideWindow(): Promise<void> {
+    const window = await remote.BrowserWindow.getFocusedWindow();
+    if (window) {
+      window.hide();
+    }
+  }
   async closeWindow(): Promise<void> {
     const window = await remote.BrowserWindow.getFocusedWindow();
-
     if (window) {
       window.close();
     }
