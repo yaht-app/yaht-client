@@ -107,7 +107,7 @@ export default class ExperienceNotification extends Vue {
 
   async onValueClicked(value: number): Promise<void> {
     LOG.debug(`onValueClicked called, value=${value}`);
-    this.experienceSamplingUseCase.updateExperienceSamplingValue(
+    await this.experienceSamplingUseCase.updateExperienceSamplingValue(
       this.user.id,
       this.experienceSampling!.id,
       value,
