@@ -1,8 +1,18 @@
 <template>
   <div class="experience-sampling-notification">
     <template v-if="experienceSampling">
-      <div class="max-w-md w-full pointer-events-auto flex">
-        <div class="w-0 flex-1 p-4">
+      <div class="notification-top-bar">
+        <div>
+          <img
+            src="~@/renderer/ui/assets/images/yaht-icon.svg"
+            class="yaht-icon"
+          />
+          Sampling: {{ experienceSampling.config.title }}
+        </div>
+        <div>{{ notificationTime }}</div>
+      </div>
+      <div class="w-full pointer-events-auto flex">
+        <div class="w-0 flex-1 p-4 pt-1">
           <div class="flex items-start">
             <div class="w-0 flex-1">
               <p class="prompt">
@@ -15,9 +25,17 @@
                   :key="value"
                   @click="onValueClicked(value)"
                 >
-                  <span class="flex mx-auto font-medium">
+                  <span
+                    v-if="sampleLoadingValue !== value"
+                    class="flex mx-auto font-medium"
+                  >
                     {{ value }}
                   </span>
+                  <img
+                    src="~@/renderer/ui/assets/images/spinner.svg"
+                    v-if="sampleLoadingValue === value"
+                    class="spinner animate-spin"
+                  />
                 </div>
               </div>
               <div class="flex flex-row text-gray-400 text-sm mt-1">
@@ -72,6 +90,7 @@ export default class ExperienceNotification extends Vue {
   private authUseCase: AuthUseCases;
   private experienceSamplingUseCase: ExperienceSamplingUseCases;
   private experienceSampling: ExperienceSample | null = null;
+  private sampleLoadingValue: number | null = null;
   private isLoadingAuth = true;
   private isLoadingExperienceSampling = true;
 
@@ -107,12 +126,18 @@ export default class ExperienceNotification extends Vue {
 
   async onValueClicked(value: number): Promise<void> {
     LOG.debug(`onValueClicked called, value=${value}`);
-    await this.experienceSamplingUseCase.updateExperienceSamplingValue(
-      this.user.id,
-      this.experienceSampling!.id,
-      value,
-      DateTime.now().toString()
-    );
+    this.sampleLoadingValue = value;
+    await Promise.all([
+      new Promise((r) => setTimeout(r, 800)),
+      this.experienceSamplingUseCase.updateExperienceSamplingValue(
+        this.user.id,
+        this.experienceSampling!.id,
+        value,
+        DateTime.now().toString()
+      ),
+    ]);
+
+    this.sampleLoadingValue = null;
     await this.fadeWindowOut();
   }
 
@@ -124,6 +149,16 @@ export default class ExperienceNotification extends Vue {
       DateTime.now().toString()
     );
     await this.fadeWindowOut();
+  }
+
+  get notificationTime(): string | null {
+    if (!this.experienceSampling?.scheduled_at) {
+      return '';
+    }
+
+    return DateTime.fromISO(this.experienceSampling.scheduled_at).toFormat(
+      'HH:mm'
+    );
   }
 
   private async fadeWindowOut(): Promise<void> {
@@ -138,6 +173,19 @@ export default class ExperienceNotification extends Vue {
 .experience-sampling-notification {
   user-select: none;
   overflow: hidden;
+  .notification-top-bar {
+    @apply flex justify-between w-full pointer-events-auto px-2 py-1 bg-gray-200 text-gray-500 text-xs;
+    line-height: 1.35rem;
+    .yaht-icon {
+      @apply inline;
+      width: 18px;
+      line-height: 1.35rem;
+    }
+  }
+  .spinner {
+    @apply w-4 h-4;
+    margin: 0 auto;
+  }
   .prompt {
     @apply font-medium text-gray-900;
   }
