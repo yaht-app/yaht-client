@@ -79,7 +79,7 @@ export default class Home extends Vue {
   private isLoggingIn = false;
   private isFetchingNotifications = false;
   private fetchNotificationsInterval: number | undefined;
-  private userName = 'sebastian.richner@uzh.ch';
+  private userName = '';
   public password = '';
 
   @auth.State isLoggedIn!: boolean;

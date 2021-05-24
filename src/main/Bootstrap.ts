@@ -1,3 +1,4 @@
+import AppUpdater from '@/main/AppUpdater';
 import { WindowMenu } from '@/main/WindowMenu';
 import { getLogger, LOG_PATH } from '@/shared/logger';
 import {
@@ -20,6 +21,7 @@ export class Bootstrap {
   public webContents!: Electron.WebContents;
   private windowMenu!: WindowMenu;
   private tray!: Electron.Tray;
+  private updater: AppUpdater = new AppUpdater();
   private readonly LOG: LogFunctions = getLogger('Bootstrap');
   private readonly isDevelopment: boolean =
     process.env.NODE_ENV === 'development';
@@ -85,10 +87,7 @@ export class Bootstrap {
         new MenuItem({
           label: 'Check for Updates',
           click: () => {
-            dialog.showMessageBox({
-              message: 'No updates available',
-              icon: alertImage,
-            });
+            this.updater.checkForUpdatesAndNotify();
           },
         }),
         new MenuItem({

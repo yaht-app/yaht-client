@@ -1,7 +1,6 @@
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { ExperienceSample } from '@/renderer/core/experience-sampling/models/ExperienceSample';
 import { ExperienceSamplingService } from '@/renderer/core/experience-sampling/ExperienceSamplingService';
-import { Occurrence } from '@/renderer/core/occurrence/models/Occurrence';
 import { GenericResponse } from '@/renderer/infrastructure/GenericResponse';
 import { HttpService } from '@/renderer/infrastructure/http/HttpService';
 import { getLogger } from '@/shared/logger';

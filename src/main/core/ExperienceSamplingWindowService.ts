@@ -9,8 +9,8 @@ export class ExperienceSamplingWindowService {
   public async createWindow(): Promise<void> {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
-    const windowWidth = 450;
-    const windowHeight = 120;
+    const windowWidth = 500;
+    const windowHeight = 130;
     this.window = await new BrowserWindow({
       width: windowWidth,
       height: windowHeight,
