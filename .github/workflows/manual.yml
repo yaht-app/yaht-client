@@ -1,7 +1,9 @@
 name: Build and Deploy Yaht Client to Dist
 
 on:
-  workflow_dispatch:
+  create:
+    tags:
+      - v*
 
 env:
   NODE_VERSION: '12.x'
