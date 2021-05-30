@@ -2,7 +2,6 @@ import { AuthService } from '@/renderer/core/auth/AuthService';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { getLogger } from '@/shared/logger';
 import axios, { AxiosInstance } from 'axios';
-import { ipcRenderer } from 'electron';
 import { injectable } from 'inversify';
 
 const LOG = getLogger('JwtAuthService');
