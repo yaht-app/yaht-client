@@ -1,6 +1,7 @@
 import type { AuthService } from '@/renderer/core/auth/AuthService';
 import { UserAuthDTO } from '@/renderer/core/auth/models/UserAuthDTO.ts';
 import { getLogger } from '@/shared/logger';
+import { ipcRenderer } from 'electron';
 import { inject, injectable } from 'inversify';
 import SERVICE from '@/constants/ServiceIdentifiers.ts';
 import store from '@/renderer/ui/store';
@@ -16,10 +17,24 @@ export class AuthUseCases {
 
   async login(username: string, password: string): Promise<void> {
     LOG.debug('login useCase');
-    const user: UserAuthDTO = await this.authService.login(username, password);
-    store.commit('authStore/setUser', user);
-    store.commit('authStore/setIsLoggedIn', true);
-    store.commit('authStore/setToken', user.token);
+    store.commit('authStore/setErrorMessage', '');
+    try {
+      const user: UserAuthDTO = await this.authService.login(
+        username,
+        password
+      );
+      store.commit('authStore/setUser', user);
+      store.commit('authStore/setIsLoggedIn', true);
+      store.commit('authStore/setToken', user.token);
+      ipcRenderer.send('setGlobalUser', user);
+    } catch (e) {
+      store.commit(
+        'authStore/setErrorMessage',
+        'Please check your credentials and try again.'
+      );
+      LOG.info(`Error during login: ${e}`);
+      throw e;
+    }
   }
 
   async logout(): Promise<void> {

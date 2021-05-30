@@ -21,6 +21,12 @@
                 <input id="password" type="password" v-model="password" />
               </div>
             </div>
+            <div
+              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm"
+              v-if="errorMessage"
+            >
+              <span>{{ errorMessage }}</span>
+            </div>
             <button class="btn btn-primary w-full" @click="loginClicked">
               <img
                 src="~@/renderer/ui/assets/images/spinner.svg"
@@ -34,12 +40,15 @@
       </div>
     </div>
     <div class="temporary-user-wrapper" v-else>
-      <h1 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h1 class="mt-0 mb-20 text-center text-3xl font-extrabold text-gray-900">
         Welcome, {{ user.username }}!
       </h1>
+      <span class="mt-12">
+        You're all set up. You can now close this window.
+      </span>
 
-      <button class="btn btn-primary w-full mt-5" @click="logoutClicked">
-        Log out
+      <button class="btn btn-primary w-full mt-5" @click="hideWindow">
+        Close Window
       </button>
     </div>
   </div>
@@ -84,6 +93,7 @@ export default class Home extends Vue {
 
   @auth.State isLoggedIn!: boolean;
   @auth.State user!: UserAuthDTO;
+  @auth.State errorMessage!: string;
 
   constructor() {
     super();
@@ -109,10 +119,8 @@ export default class Home extends Vue {
     this.isLoggingIn = true;
     try {
       await this.authUseCase.login(this.userName, this.password);
-      const mainWindow = await remote.BrowserWindow.getFocusedWindow();
-      if (process.env.NODE_ENV === 'production' && mainWindow) {
-        mainWindow.hide();
-      }
+
+      this.requestAutoStartPermission();
 
       await this.fetchNotifications();
       this.fetchNotificationsInterval = window.setInterval(
@@ -219,6 +227,17 @@ export default class Home extends Vue {
       );
     } catch (e) {
       LOG.error(e);
+    }
+  }
+
+  private requestAutoStartPermission(): void {
+    ipcRenderer.send('auto-launch-check');
+  }
+
+  private async hideWindow(): Promise<void> {
+    const mainWindow = await remote.BrowserWindow.getFocusedWindow();
+    if (mainWindow) {
+      mainWindow.hide();
     }
   }
 

@@ -7,12 +7,14 @@ export interface AuthState {
   isLoggedIn: boolean;
   user?: UserAuthDTO;
   token: string;
+  errorMessage?: string;
 }
 
 const state: AuthState = {
   isLoggedIn: false,
   user: undefined,
   token: '',
+  errorMessage: '',
 };
 
 const mutations = {
@@ -25,12 +27,16 @@ const mutations = {
   setToken(state: AuthState, token: string): void {
     state.token = token;
   },
+  setErrorMessage(state: AuthState, error: string): void {
+    state.errorMessage = error;
+  },
 };
 const actions = {
   logout(context: ActionContext<AuthState, RootState>): void {
     context.commit('setUser', undefined);
     context.commit('setIsLoggedIn', false);
     context.commit('setToken', '');
+    context.commit('setErrorMessage', '');
   },
 };
 const getters = {};

@@ -1,6 +1,6 @@
 {
   "name": "yaht-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -20,6 +20,7 @@
     "@tailwindcss/postcss7-compat": "^2.0.2",
     "@tailwindcss/typography": "^0.4.0",
     "animate.css": "^4.1.1",
+    "auto-launch": "^5.0.5",
     "autoprefixer": "^9",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
@@ -41,6 +42,7 @@
     "vuex-typescript": "^3.0.2"
   },
   "devDependencies": {
+    "@types/auto-launch": "^5.0.1",
     "@types/cron": "^1.7.2",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/jest": "^24.0.19",
