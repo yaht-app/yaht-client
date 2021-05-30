@@ -90,6 +90,7 @@ export default class Home extends Vue {
 
   @auth.State isLoggedIn!: boolean;
   @auth.State user!: UserAuthDTO;
+  @auth.State errorMessage!: string;
 
   constructor() {
     super();
