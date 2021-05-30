@@ -30,6 +30,7 @@ export class Bootstrap {
     : path.join(process.resourcesPath, 'resources');
 
   public ready: () => Promise<void> = async () => {
+    this.LOG.info(`App ready, running version ${app.getVersion()}`);
     try {
       await this.createWindow();
     } catch (e) {
@@ -85,13 +86,13 @@ export class Bootstrap {
     this.tray.setContextMenu(
       Menu.buildFromTemplate([
         new MenuItem({
-          label: 'Check for Updates',
+          label: 'Check for Updates...',
           click: () => {
             this.updater.checkForUpdatesAndNotify();
           },
         }),
         new MenuItem({
-          label: 'Sync notifications',
+          label: 'Synchronize...',
           click: async () => {
             try {
               await this.webContents.send('fetch-notifications');
@@ -121,6 +122,10 @@ export class Bootstrap {
           click: async (): Promise<void> => {
             await shell.openExternal(`file://${LOG_PATH}`);
           },
+        }),
+        new MenuItem({
+          label: `Version ${app.getVersion()}`,
+          enabled: false,
         }),
         { type: 'separator' },
         new MenuItem({

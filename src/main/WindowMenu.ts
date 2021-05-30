@@ -15,6 +15,10 @@ export class WindowMenu {
               await shell.openExternal('https://yaht.app');
             },
           },
+          {
+            label: `Version ${app.getVersion()}`,
+            enabled: false,
+          },
           { type: 'separator' },
           { role: 'services' },
           { type: 'separator' },

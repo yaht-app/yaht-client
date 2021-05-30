@@ -44,7 +44,7 @@
         Welcome, {{ user.username }}!
       </h1>
       <span class="mt-12">
-        You're all set up. You can now close this window.
+        You're all set. You can now close this window.
       </span>
 
       <button class="btn btn-primary w-full mt-5" @click="hideWindow">
