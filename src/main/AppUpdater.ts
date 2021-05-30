@@ -3,6 +3,7 @@ import { autoUpdater } from 'electron-updater';
 const LOG = getLogger('AutoUpdater');
 
 export default class AppUpdater {
+  private checkForUpdatesInterval: NodeJS.Timeout | undefined;
   constructor() {
     autoUpdater.logger = LOG;
   }
@@ -13,5 +14,13 @@ export default class AppUpdater {
     } catch (e) {
       LOG.error(`An error occurred while trying to check for updates: ${e}`);
     }
+  }
+
+  public startCheckForUpdatesInterval() {
+    LOG.info('startCheckForUpdatesInterval called, starting interval...');
+    this.checkForUpdatesInterval = setInterval(
+      this.checkForUpdatesAndNotify,
+      10 * 60 * 1000
+    );
   }
 }

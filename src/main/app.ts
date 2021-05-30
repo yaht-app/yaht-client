@@ -8,6 +8,7 @@ import { NotificationService } from '@/main/core/NotificationService';
 import { getLogger } from '@/shared/logger';
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import AutoLaunch from 'auto-launch';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const LOG = getLogger('app.ts', true);
@@ -49,8 +50,19 @@ app.on('ready', async () => {
     }
   }
   await system.ready();
-  updater.checkForUpdatesAndNotify();
+  updater.startCheckForUpdatesInterval();
   notificationService.setWebContents(system.webContents);
+  const autoLaunch = new AutoLaunch({
+    name: 'yaht',
+  });
+
+  ipcMain.on('auto-launch-check', () => {
+    autoLaunch.isEnabled().then((isEnabled: boolean) => {
+      if (!isEnabled) {
+        autoLaunch.enable();
+      }
+    });
+  });
 });
 
 // Exit cleanly on request from parent process in development mode.
