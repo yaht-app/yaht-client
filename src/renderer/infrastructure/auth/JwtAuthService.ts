@@ -27,7 +27,6 @@ export class JwtAuthService implements AuthService {
     });
 
     this.user = response.data.data as UserAuthDTO;
-    ipcRenderer.send('setGlobalUser', this.user);
     return this.user;
   }
 
