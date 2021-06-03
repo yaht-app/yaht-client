@@ -132,7 +132,7 @@ export default class Home extends Vue {
         body: `Welcome back, ${this.user.username}`,
       });
     } catch (e) {
-      LOG.error(e);
+      LOG.error(`Could not log in, error: ${e.message}`);
     }
     this.isLoggingIn = false;
   }

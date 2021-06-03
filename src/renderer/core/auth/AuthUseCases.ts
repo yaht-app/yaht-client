@@ -32,7 +32,7 @@ export class AuthUseCases {
         'authStore/setErrorMessage',
         'Please check your credentials and try again.'
       );
-      LOG.info(`Error during login: ${e}`);
+      LOG.error(`Error during login: ${e.message}`);
       throw e;
     }
   }
