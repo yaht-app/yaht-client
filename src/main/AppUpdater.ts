@@ -9,6 +9,9 @@ export default class AppUpdater {
   }
 
   public async checkForUpdatesAndNotify(): Promise<void> {
+    LOG.info(
+      'checkForUpdatesAndNotify was called, calling autoUpdater.checkForUpdatesAndNotify'
+    );
     try {
       await autoUpdater.checkForUpdatesAndNotify();
     } catch (e) {
@@ -16,7 +19,7 @@ export default class AppUpdater {
     }
   }
 
-  public startCheckForUpdatesInterval() {
+  public startCheckForUpdatesInterval(): void {
     LOG.info('startCheckForUpdatesInterval called, starting interval...');
     this.checkForUpdatesInterval = setInterval(
       this.checkForUpdatesAndNotify,

@@ -22,7 +22,9 @@ export class HttpService {
       const newConfig = config;
       const token = store.state.authStore.token || authService.getToken();
       newConfig.headers.Authorization = token ? `Bearer ${token}` : '';
-
+      newConfig.headers.ClientVersion = window
+        .require('electron')
+        .remote.app.getVersion();
       return newConfig;
     });
   }

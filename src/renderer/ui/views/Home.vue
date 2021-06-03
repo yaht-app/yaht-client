@@ -127,8 +127,12 @@ export default class Home extends Vue {
         this.fetchNotifications,
         5 * 60 * 1000
       );
+
+      new Notification(`You're all set`, {
+        body: `Welcome back, ${this.user.username}`,
+      });
     } catch (e) {
-      LOG.error(e);
+      LOG.error(`Could not log in, error: ${e.message}`);
     }
     this.isLoggingIn = false;
   }

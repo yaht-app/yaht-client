@@ -112,7 +112,7 @@ export class NotificationUseCases {
       `Skip`,
       'reflection',
       'Reflection',
-      `Add your reflection`,
+      `Click to add your reflection`,
       dateTime.toString(),
       undefined,
       [],
