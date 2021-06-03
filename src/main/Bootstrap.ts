@@ -88,6 +88,9 @@ export class Bootstrap {
         new MenuItem({
           label: 'Check for Updates...',
           click: () => {
+            this.LOG.info(
+              `'Check for Updates...' was clicked, going to call updater.checkForUpdatesAndNotify`
+            );
             this.updater.checkForUpdatesAndNotify();
           },
         }),

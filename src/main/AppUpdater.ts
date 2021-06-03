@@ -9,6 +9,9 @@ export default class AppUpdater {
   }
 
   public async checkForUpdatesAndNotify(): Promise<void> {
+    LOG.info(
+      'checkForUpdatesAndNotify was called, calling autoUpdater.checkForUpdatesAndNotify'
+    );
     try {
       await autoUpdater.checkForUpdatesAndNotify();
     } catch (e) {
