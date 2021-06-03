@@ -7,7 +7,7 @@
             src="~@/renderer/ui/assets/images/yaht-icon.svg"
             class="yaht-icon"
           />
-          Sampling: {{ experienceSampling.config.title }}
+          Self-Report: {{ experienceSampling.config.title }}
         </div>
         <div>{{ notificationTime }}</div>
       </div>
