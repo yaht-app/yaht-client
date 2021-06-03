@@ -16,7 +16,7 @@ export default class AppUpdater {
     }
   }
 
-  public startCheckForUpdatesInterval() {
+  public startCheckForUpdatesInterval(): void {
     LOG.info('startCheckForUpdatesInterval called, starting interval...');
     this.checkForUpdatesInterval = setInterval(
       this.checkForUpdatesAndNotify,
