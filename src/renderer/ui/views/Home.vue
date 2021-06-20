@@ -152,31 +152,40 @@ export default class Home extends Vue {
     }
     LOG.info('fetchNotifications called, fetching notifications...');
     this.isFetchingNotifications = true;
-    const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
-      this.user.id
-    );
-    const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
-      occurrences
-    );
-    const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
-      this.user
-    );
-    const experienceSamples = await this.experienceSamplingUseCase.getExperienceSamplingsForUser(
-      this.user.id
-    );
 
-    const allNotifications = occurrenceNotifications.concat(
-      reflectionNotifications
-    );
-    this.isFetchingNotifications = false;
-    ipcRenderer.send('fetch-notifications-answer', true);
-
-    if (allNotifications) {
-      LOG.debug(
-        `Notifications loaded in Home, length=${allNotifications.length}`
+    try {
+      const occurrences = await this.occurrenceUseCase.getOccurrencesForUser(
+        this.user.id
       );
-      ipcRenderer.send('notifications', allNotifications);
-      ipcRenderer.send('experience-samples', experienceSamples);
+      const occurrenceNotifications = this.notificationUseCase.createNotificationsFromOccurrences(
+        occurrences
+      );
+      const reflectionNotifications = this.notificationUseCase.createNotificationsFromReflections(
+        this.user
+      );
+      const experienceSamples = await this.experienceSamplingUseCase.getExperienceSamplingsForUser(
+        this.user.id
+      );
+
+      const allNotifications = occurrenceNotifications.concat(
+        reflectionNotifications
+      );
+      this.isFetchingNotifications = false;
+      ipcRenderer.send('fetch-notifications-answer', true);
+
+      if (allNotifications) {
+        LOG.debug(
+          `Notifications loaded in Home, length=${allNotifications.length}`
+        );
+        ipcRenderer.send('notifications', allNotifications);
+        ipcRenderer.send('experience-samples', experienceSamples);
+      }
+    } catch (e) {
+      LOG.error(
+        `An error occurred while fetching notifications. Error: ${JSON.stringify(
+          e
+        )}`
+      );
     }
   }
 

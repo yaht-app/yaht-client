@@ -1,9 +1,11 @@
 import store from '@/renderer/ui/store';
 import SERVICE from '@/constants/ServiceIdentifiers';
 import { AuthService } from '@/renderer/core/auth/AuthService';
+import { getLogger } from '@/shared/logger';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { inject, injectable } from 'inversify';
 
+const LOG = getLogger('HttpService');
 const API_URL = process.env.VUE_APP_API_URL;
 
 @injectable()
@@ -34,7 +36,28 @@ export class HttpService {
     params?: Record<string, string>,
     headers?: Record<string, string>
   ): Promise<AxiosResponse<T>> {
-    return this.httpClient.get(url, { params, headers });
+    try {
+      return this.httpClient.get(url, { params, headers });
+    } catch (e) {
+      if (e.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        LOG.error(
+          `GET request failed with status ${e.response.status} and data ${e.response.data}`
+        );
+      } else if (e.request) {
+        // The request was made but no response was received
+        LOG.error(
+          `GET request failed with no response, request is ${e.request}`
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        LOG.error(
+          `GET request failed with no response or request, Error: ${e.message}`
+        );
+      }
+      throw e;
+    }
   }
 
   async post<T>(
@@ -42,7 +65,28 @@ export class HttpService {
     data?: unknown,
     headers?: Record<string, string>
   ): Promise<AxiosResponse<T>> {
-    return this.httpClient.post(url, data, { headers });
+    try {
+      return this.httpClient.post(url, data, { headers });
+    } catch (e) {
+      if (e.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        LOG.error(
+          `POST request failed with status ${e.response.status} and data ${e.response.data}`
+        );
+      } else if (e.request) {
+        // The request was made but no response was received
+        LOG.error(
+          `POST request failed with no response, request is ${e.request}`
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        LOG.error(
+          `POST request failed with no response or request, Error: ${e.message}`
+        );
+      }
+      throw e;
+    }
   }
 
   async put<T>(
@@ -50,6 +94,27 @@ export class HttpService {
     data?: unknown,
     headers?: Record<string, string>
   ): Promise<AxiosResponse<T>> {
-    return this.httpClient.put(url, data, { headers });
+    try {
+      return this.httpClient.put(url, data, { headers });
+    } catch (e) {
+      if (e.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        LOG.error(
+          `PUT request failed with status ${e.response.status} and data ${e.response.data}`
+        );
+      } else if (e.request) {
+        // The request was made but no response was received
+        LOG.error(
+          `PUT request failed with no response, request is ${e.request}`
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        LOG.error(
+          `PUT request failed with no response or request, Error: ${e.message}`
+        );
+      }
+      throw e;
+    }
   }
 }
