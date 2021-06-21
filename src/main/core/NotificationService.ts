@@ -1,6 +1,7 @@
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import { CronJob } from 'cron';
+import * as electron from 'electron';
 import { Notification, shell, WebContents } from 'electron';
 import { LogFunctions } from 'electron-log';
 import { DateTime } from 'luxon';
@@ -21,6 +22,13 @@ export class NotificationService {
       } catch (e) {
         LOG.error(e);
       }
+    });
+
+    electron.powerMonitor.on('suspend', () => {
+      this.cronJob.stop();
+    });
+    electron.powerMonitor.on('resume', () => {
+      this.cronJob.start();
     });
   }
 
@@ -88,8 +96,8 @@ export class NotificationService {
         `Close event received from notification. Type: ${basicNotification.type}`
       );
       if (basicNotification.type === 'start') {
-        LOG.info(`handleStartedNotification`);
-        this.handleStartedNotification(basicNotification);
+        // LOG.info(`handleStartedNotification`);
+        // this.handleStartedNotification(basicNotification);
       } else if (basicNotification.type === 'end') {
         LOG.info(`handleEndedNotification`);
         this.handleEndedNotification(basicNotification);
@@ -101,7 +109,14 @@ export class NotificationService {
           'Action received from notification: ',
           nativeNotification.actions[index]
         );
-        this.handleSkippedNotification(basicNotification);
+        if (index === 0) {
+          LOG.info(`handleStartedNotification`);
+          this.handleStartedNotification(basicNotification);
+        }
+        if (index === 1) {
+          LOG.info(`handleSkippedNotification`);
+          this.handleSkippedNotification(basicNotification);
+        }
       });
     }
     if (basicNotification.type === 'reflection') {

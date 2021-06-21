@@ -44,12 +44,13 @@ export class NotificationUseCases {
           )
         );
       } else if (!o.skipped_at && !o.ended_at) {
+        actions.push({ text: `Start ${o.habit.title}`, type: 'button' });
         if (o.habit.is_skippable) {
           actions.push({ text: 'Skip', type: 'button' });
         }
         notifications.push(
           new BasicNotification(
-            `Start ${o.habit.title}`,
+            `Close`,
             'start',
             o.habit.title,
             `Start ${o.habit.title} now`,
