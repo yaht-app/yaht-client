@@ -1,6 +1,7 @@
 import { BasicNotification } from '@/renderer/core/notification/models/BasicNotification';
 import { getLogger } from '@/shared/logger';
 import { CronJob } from 'cron';
+import * as electron from 'electron';
 import { Notification, shell, WebContents } from 'electron';
 import { LogFunctions } from 'electron-log';
 import { DateTime } from 'luxon';
@@ -21,6 +22,13 @@ export class NotificationService {
       } catch (e) {
         LOG.error(e);
       }
+    });
+
+    electron.powerMonitor.on('suspend', () => {
+      this.cronJob.stop();
+    });
+    electron.powerMonitor.on('resume', () => {
+      this.cronJob.start();
     });
   }
 
