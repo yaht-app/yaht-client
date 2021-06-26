@@ -127,15 +127,23 @@ export default class ExperienceNotification extends Vue {
   async onValueClicked(value: number): Promise<void> {
     LOG.debug(`onValueClicked called, value=${value}`);
     this.sampleLoadingValue = value;
-    await Promise.all([
-      new Promise((r) => setTimeout(r, 800)),
-      this.experienceSamplingUseCase.updateExperienceSamplingValue(
-        this.user.id,
-        this.experienceSampling!.id,
-        value,
-        DateTime.now().toString()
-      ),
-    ]);
+    try {
+      await Promise.all([
+        new Promise((r) => setTimeout(r, 400)),
+        this.experienceSamplingUseCase.updateExperienceSamplingValue(
+          this.user.id,
+          this.experienceSampling!.id,
+          value,
+          DateTime.now().toString()
+        ),
+      ]);
+    } catch (e) {
+      LOG.error(
+        `An error occurred while trying to send ExperienceSampling Update (valueClicked) request: ${JSON.stringify(
+          e
+        )}`
+      );
+    }
 
     this.sampleLoadingValue = null;
     await this.fadeWindowOut();
@@ -143,11 +151,19 @@ export default class ExperienceNotification extends Vue {
 
   async onSkipClicked(): Promise<void> {
     LOG.debug('Skip called, closing window...');
-    await this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
-      this.user.id,
-      this.experienceSampling!.id,
-      DateTime.now().toString()
-    );
+    try {
+      await this.experienceSamplingUseCase.updateExperienceSamplingSkippedAt(
+        this.user.id,
+        this.experienceSampling!.id,
+        DateTime.now().toString()
+      );
+    } catch (e) {
+      LOG.error(
+        `An error occurred while trying to send ExperienceSampling Update (Skip) request: ${JSON.stringify(
+          e
+        )}`
+      );
+    }
     await this.fadeWindowOut();
   }
 
