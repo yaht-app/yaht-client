@@ -23,7 +23,7 @@ export default class AppUpdater {
     LOG.info('startCheckForUpdatesInterval called, starting interval...');
     this.checkForUpdatesInterval = setInterval(
       this.checkForUpdatesAndNotify,
-      10 * 60 * 1000
+      30 * 60 * 1000
     );
   }
 }

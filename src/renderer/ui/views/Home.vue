@@ -170,11 +170,10 @@ export default class Home extends Vue {
       const allNotifications = occurrenceNotifications.concat(
         reflectionNotifications
       );
-      this.isFetchingNotifications = false;
       ipcRenderer.send('fetch-notifications-answer', true);
 
       if (allNotifications) {
-        LOG.debug(
+        LOG.info(
           `Notifications loaded in Home, length=${allNotifications.length}`
         );
         ipcRenderer.send('notifications', allNotifications);
@@ -186,7 +185,10 @@ export default class Home extends Vue {
           e
         )}`
       );
+      ipcRenderer.send('fetch-notifications-answer', false);
     }
+
+    this.isFetchingNotifications = false;
   }
 
   async handleSkippedNotification(
