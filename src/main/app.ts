@@ -105,6 +105,7 @@ ipcMain.on('experience-samples', async (event, experienceSamples) => {
 
 ipcMain.on('setGlobalUser', async (event, user) => {
   LOG.debug(`Received user from renderer`);
+  system.updateTray(user.username);
   // @ts-ignore
   global.user = user;
 });

@@ -59,7 +59,7 @@ export class Bootstrap {
 
     this.windowMenu = new WindowMenu(this.mainWindow);
     this.windowMenu.setAppMenu();
-    this.setTray();
+    this.createTray();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
@@ -74,17 +74,27 @@ export class Bootstrap {
     }
   }
 
-  private setTray(): void {
+  private createTray(): void {
     const trayImage = nativeImage.createFromPath(
       `${this.assetsPath}/tray@2x.png`
     );
+
+    this.tray = new Tray(trayImage);
+
+    this.updateTray();
+  }
+
+  public updateTray(userName: string | null = null): void {
     const alertImage = nativeImage.createFromPath(
       `${this.assetsPath}/icon@2x.png`
     );
-    this.tray = new Tray(trayImage);
-
     this.tray.setContextMenu(
       Menu.buildFromTemplate([
+        new MenuItem({
+          label: userName ? `Logged in as ${userName}` : `Not logged in...`,
+          enabled: false,
+        }),
+        { type: 'separator' },
         new MenuItem({
           label: 'Check for Updates...',
           click: () => {
@@ -121,14 +131,27 @@ export class Bootstrap {
         }),
         { type: 'separator' },
         new MenuItem({
+          label: 'Open Dashboard',
+          click: async (): Promise<void> => {
+            await shell.openExternal(`https://yaht.app/dashboard`);
+          },
+        }),
+        new MenuItem({
+          label: 'Get Help',
+          click: async (): Promise<void> => {
+            await shell.openExternal(`mailto:help@yaht.app`);
+          },
+        }),
+        { type: 'separator' },
+        new MenuItem({
+          label: `Version ${app.getVersion()}`,
+          enabled: false,
+        }),
+        new MenuItem({
           label: 'Open Logs',
           click: async (): Promise<void> => {
             await shell.openExternal(`file://${LOG_PATH}`);
           },
-        }),
-        new MenuItem({
-          label: `Version ${app.getVersion()}`,
-          enabled: false,
         }),
         { type: 'separator' },
         new MenuItem({
