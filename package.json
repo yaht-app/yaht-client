@@ -30,7 +30,7 @@
     "inversify": "^5.0.5",
     "jwt-decode": "^3.1.2",
     "luxon": "^1.26.0",
-    "postcss": "^7",
+    "postcss": "^8",
     "reflect-metadata": "^0.1.13",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
     "vue": "^2.6.11",
